@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>روليت الأسماء الاحترافي</title>
+    <title>روليت الأسماء الاحترافي - نسخة مصححة</title>
     <style>
         :root {
             --primary: #6366f1;
@@ -22,6 +22,7 @@
             align-items: center;
             padding: 20px;
             margin: 0;
+            min-height: 100vh;
         }
 
         .container {
@@ -33,11 +34,35 @@
         h1 { color: var(--primary); margin-bottom: 30px; }
 
         /* منطقة العجلة */
-        .wheel-container {
+        .wheel-outer-wrapper {
             position: relative;
-            width: 350px;
-            height: 350px;
+            width: 360px;
+            height: 360px;
             margin: 0 auto 40px auto;
+        }
+
+        /* السهم المؤشر (ثابت في الأعلى) */
+        .pointer {
+            position: absolute;
+            top: -25px; /* موقعه فوق العجلة */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-top: 35px solid #ef4444; /* لون أحمر زاهي */
+            z-index: 100; /* لضمان ظهوره فوق كل شيء */
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+
+        /* الحاوية التي تدور */
+        .wheel-canvas-wrapper {
+            width: 100%;
+            height: 100%;
+            transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1); /* حركة ناعمة جداً */
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
         #wheel {
@@ -45,21 +70,8 @@
             height: 100%;
             border-radius: 50%;
             border: 8px solid var(--card);
-            transition: transform 4s cubic-bezier(0.1, 0, 0.2, 1);
-            background: conic-gradient(#334155 0deg 360deg);
-        }
-
-        .pointer {
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 30px solid #ef4444;
-            z-index: 10;
+            background: #334155;
+            display: block;
         }
 
         /* أدوات التحكم */
@@ -72,6 +84,13 @@
             gap: 15px;
         }
 
+        .input-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
         input {
             padding: 12px;
             border-radius: 8px;
@@ -79,13 +98,7 @@
             background: #0f172a;
             color: white;
             font-size: 16px;
-            width: 80%;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
+            flex-grow: 1;
         }
 
         button {
@@ -95,6 +108,7 @@
             cursor: pointer;
             font-weight: bold;
             transition: 0.3s;
+            white-space: nowrap;
         }
 
         .btn-add { background: var(--primary); color: white; }
@@ -107,145 +121,251 @@
             margin-top: 10px;
         }
 
-        button:hover { opacity: 0.8; transform: translateY(-2px); }
+        button:hover:not(:disabled) { opacity: 0.8; transform: translateY(-2px); }
+        button:disabled { background: #64748b; cursor: not-allowed; }
 
         /* عرض النتيجة */
-        #result {
+        #result-wrapper {
             margin-top: 20px;
-            font-size: 1.5rem;
+            min-height: 40px;
+        }
+
+        #result {
+            font-size: 1.8rem;
             font-weight: bold;
             color: #22c55e;
-            min-height: 2rem;
+            transition: 0.3s;
         }
+        
+        .spinning #result { color: #94a3b8; } /* لون رمادي أثناء الدوران */
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="container" id="mainContainer">
     <h1>🎡 روليت الحظ الاحترافي</h1>
 
-    <div class="wheel-container">
+    <div class="wheel-outer-wrapper">
         <div class="pointer"></div>
-        <canvas id="wheel"></canvas>
+        <div class="wheel-canvas-wrapper" id="wheelWrapper">
+            <canvas id="wheel"></canvas>
+        </div>
     </div>
 
-    <div id="result"></div>
+    <div id="result-wrapper">
+        <div id="result">أضف أسماء وابدأ اللعب!</div>
+    </div>
 
     <div class="controls">
-        <div>
+        <div class="input-group">
             <input type="text" id="nameInput" placeholder="اكتب الاسم للإضافة...">
             <button class="btn-add" onclick="addName()">إضافة للعجلة</button>
         </div>
 
-        <div>
+        <div class="input-group">
             <input type="text" id="deleteInput" placeholder="اكتب الاسم لحذفه واضغط Enter..." onkeypress="handleDelete(event)">
             <button class="btn-delete" onclick="deleteName()">حذف اسم</button>
         </div>
 
-        <button class="btn-spin" onclick="spinWheel()">🚀 تدوير العجلة!</button>
+        <button class="btn-spin" id="spinBtn" onclick="spinWheel()">🚀 تدوير العجلة!</button>
     </div>
 </div>
 
 <script>
-    let names = JSON.parse(localStorage.getItem('rouletteNames')) || ["أحمد", "سارة", "محمد", "نورة"];
+    // نظام الحفظ: جلب الأسماء أو استخدام افتراضية
+    let names = JSON.parse(localStorage.getItem('rouletteNames')) || ["أحمد", "سارة", "محمد", "نورة", "خالد", "ريم"];
+    
     const canvas = document.getElementById('wheel');
     const ctx = canvas.getContext('2d');
-    let currentRotation = 0;
+    const wheelWrapper = document.getElementById('wheelWrapper');
+    const resultDisplay = document.getElementById('result');
+    const spinBtn = document.getElementById('spinBtn');
+    const mainContainer = document.getElementById('mainContainer');
 
+    let currentRotation = 0;
+    let isSpinning = false;
+    const size = 360; // حجم الكانفاس
+
+    // دالة لرسم العجلة بدقة
     function drawWheel() {
-        const size = 350;
         canvas.width = size;
         canvas.height = size;
         const center = size / 2;
-        const radius = size / 2;
-        const sliceAngle = (2 * Math.PI) / (names.length || 1);
+        const radius = size / 2 - 5; // ترك هامش بسيط
+        const numNames = names.length;
 
         ctx.clearRect(0, 0, size, size);
 
-        if (names.length === 0) {
-            ctx.fillStyle = "#334155";
+        if (numNames === 0) {
+            // شكل العجلة فارغة
             ctx.beginPath();
             ctx.arc(center, center, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = "#334155";
             ctx.fill();
+            ctx.strokeStyle = "#475569";
+            ctx.stroke();
             return;
         }
 
+        const sliceAngle = (2 * Math.PI) / numNames;
+
         names.forEach((name, i) => {
-            const angle = i * sliceAngle;
+            const startAngle = i * sliceAngle;
+            const endAngle = startAngle + sliceAngle;
             
-            // رسم الشريحة
+            // 1. رسم شريحة الخلفية
             ctx.beginPath();
-            ctx.fillStyle = `hsl(${i * (360 / names.length)}, 70%, 50%)`;
             ctx.moveTo(center, center);
-            ctx.arc(center, center, radius, angle, angle + sliceAngle);
+            // ألوان متناوبة احترافية
+            ctx.fillStyle = `hsl(${i * (360 / numNames)}, 70%, ${i % 2 === 0 ? 50 : 40}%)`;
+            ctx.arc(center, center, radius, startAngle, endAngle);
+            ctx.closePath();
             ctx.fill();
+            
+            // خطوط حدودية خفيفة
+            ctx.strokeStyle = "rgba(255,255,255,0.2)";
+            ctx.lineWidth = 1;
             ctx.stroke();
 
-            // إضافة النص
+            // 2. رسم النص
             ctx.save();
             ctx.translate(center, center);
-            ctx.rotate(angle + sliceAngle / 2);
+            // تدوير النص ليكون في منتصف الشريحة تماماً
+            ctx.rotate(startAngle + sliceAngle / 2);
+            
             ctx.textAlign = "right";
             ctx.fillStyle = "white";
-            ctx.font = "bold 16px Arial";
-            ctx.fillText(name, radius - 20, 10);
+            // تصغير الخط تلقائياً إذا كثرت الأسماء
+            let fontSize = numNames > 20 ? 12 : (numNames > 10 ? 14 : 16);
+            ctx.font = `bold ${fontSize}px sans-serif`;
+            
+            // إضافة ظل للنص لزيادة الوضوح
+            ctx.shadowColor = "rgba(0,0,0,0.5)";
+            ctx.shadowBlur = 4;
+            
+            // رسم النص قبل نهاية الحافة بقليل
+            ctx.fillText(name, radius - 15, fontSize / 3);
             ctx.restore();
         });
     }
 
+    // دالة التدوير وحساب الفائز بدقة
+    function spinWheel() {
+        if (isSpinning) return;
+        if (names.length < 2) {
+            alert("يرجى إضافة اسمين على الأقل للعب!");
+            return;
+        }
+
+        isSpinning = true;
+        spinBtn.disabled = true;
+        mainContainer.classList.add('spinning');
+        resultDisplay.innerText = "جاري السحب... التشويق يزيد! 🤔";
+
+        // 1. تحديد عدد دورات عشوائي كبير (بين 5 إلى 10 دورات كاملة + زاوية عشوائية)
+        const minRots = 5;
+        const maxRots = 10;
+        const randomExtraAngle = Math.random() * 360;
+        const totalSpinDegrees = (Math.floor(Math.random() * (maxRots - minRots + 1)) + minRots) * 360 + randomExtraAngle;
+        
+        // تحديث التدوير التراكمي
+        currentRotation += totalSpinDegrees;
+
+        // 2. تطبيق التحريك عبر CSS
+        wheelWrapper.style.transform = `rotate(${currentRotation}deg)`;
+
+        // 3. انتظار انتهاء التحريك (5 ثوانٍ كما في CSS)
+        setTimeout(() => {
+            isSpinning = false;
+            spinBtn.disabled = false;
+            mainContainer.classList.remove('spinning');
+
+            // --- الحساب الرياضي الدقيق المصحح ---
+
+            // الزاوية النهائية الفعلية داخل الدائرة الواحدة (من 0 لـ 360)
+            const actualModuloAngle = currentRotation % 360;
+
+            // في CSS، الدوران الموجب يكون مع عقارب الساعة.
+            // السهم موجود في الأعلى (زاوية 270 درجة في نظام إحداثيات الكانفاس الافتراضي، أو -90).
+            // لتحديد ما يقابل السهم تماماً، نحتاج عكس اتجاه الزاوية وإضافة 90 درجة لتصحيح موقع السهم العلوي.
+            let correctedAngle = (360 - actualModuloAngle + 90) % 360;
+            if (correctedAngle < 0) correctedAngle += 360; // ضمان أنها موجبة
+
+            const numNames = names.length;
+            const sliceDegrees = 360 / numNames;
+
+            // تحديد المؤشر (Index) بناءً على الزاوية المصححة
+            let winningIndex = Math.floor(correctedAngle / sliceDegrees);
+            
+            // تصحيح أخطاء التقريب البرمجية النادرة جداً
+            if (winningIndex >= numNames) winningIndex = 0;
+
+            // عرض النتيجة النهائية
+            const winner = names[winningIndex];
+            resultDisplay.innerHTML = `🎉 الفائز هو: <span style="color:var(--secondary)">${winner}</span> 🎉`;
+            
+            // تأثير بصرى بسيط على النتيجة
+            resultDisplay.style.transform = "scale(1.1)";
+            setTimeout(()=> resultDisplay.style.transform = "scale(1)", 200);
+
+        }, 5000); // يجب أن تطابق مدة الـ transition في CSS
+    }
+
+    // إدارة الأسماء (إضافة/حذف/حفظ)
     function addName() {
+        if (isSpinning) return;
         const input = document.getElementById('nameInput');
-        if (input.value.trim()) {
-            names.push(input.value.trim());
+        const name = input.value.trim();
+        if (name) {
+            if (names.includes(name)) {
+                alert("هذا الاسم موجود بالفعل!");
+                return;
+            }
+            names.push(name);
             saveAndRefresh();
             input.value = '';
+            input.focus();
+            resultDisplay.innerText = `تمت إضافة "${name}"`;
         }
     }
 
     function deleteName() {
+        if (isSpinning) return;
         const input = document.getElementById('deleteInput');
         const nameToDelete = input.value.trim();
+        if (!nameToDelete) return;
+
         const index = names.indexOf(nameToDelete);
         if (index > -1) {
             names.splice(index, 1);
             saveAndRefresh();
             input.value = '';
+            resultDisplay.innerText = `تم حذف "${nameToDelete}"`;
         } else {
-            alert("الاسم غير موجود!");
+            alert("الاسم غير موجود في القائمة، تأكد من كتابته بشكل صحيح.");
         }
     }
 
     function handleDelete(e) {
-        if (e.key === 'Enter') deleteName();
+        if (e.key === 'Enter') {
+            deleteName();
+        }
     }
 
     function saveAndRefresh() {
         localStorage.setItem('rouletteNames', JSON.stringify(names));
         drawWheel();
-    }
-
-    function spinWheel() {
-        if (names.length < 2) {
-            alert("يرجى إضافة اسمين على الأقل!");
-            return;
-        }
-
-        const extraDegrees = Math.floor(Math.random() * 360) + 1440; // 4 دورات على الأقل
-        currentRotation += extraDegrees;
-        canvas.style.transform = `rotate(${currentRotation}deg)`;
-
-        document.getElementById('result').innerText = "جاري الاختيار...";
-
+        // إعادة تعيين الدوران عند تغيير الأسماء لتجنب القفزات المفاجئة
+        wheelWrapper.style.transition = 'none';
+        currentRotation = 0;
+        wheelWrapper.style.transform = `rotate(0deg)`;
+        // إعادة تفعيل التحريك في الدورة التالية
         setTimeout(() => {
-            const actualRotation = currentRotation % 360;
-            const sliceAngle = 360 / names.length;
-            // الحساب لاختيار الاسم الصحيح بناءً على السهم العلوي
-            const winningIndex = Math.floor((360 - (actualRotation % 360)) / sliceAngle) % names.length;
-            document.getElementById('result').innerText = "الفائز هو: " + names[winningIndex];
-        }, 4000);
+            wheelWrapper.style.transition = 'transform 5s cubic-bezier(0.1, 0, 0.1, 1)';
+        }, 50);
     }
 
-    // التشغيل الأول
+    // التشغيل الأولي عند تحميل الصفحة
     drawWheel();
 </script>
 
