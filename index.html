@@ -3,371 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>روليت الأسماء الاحترافي - نسخة مصححة</title>
+    <title>موقع تنزيل من تيك توك</title>
+    <!-- استدعاء أيقونات FontAwesome لشكل الحافظة -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        :root {
-            --primary: #6366f1;
-            --secondary: #a855f7;
-            --bg: #0f172a;
-            --card: #1e293b;
-            --text: #f8fafc;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            background: linear-gradient(135deg, #121212 0%, #1f1f1f 100%);
+            color: #ffffff;
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
             padding: 20px;
-            margin: 0;
-            min-height: 100vh;
         }
 
         .container {
-            max-width: 800px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px 30px;
+            border-radius: 20px;
             width: 100%;
+            max-width: 600px;
             text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
         }
 
-        h1 { color: var(--primary); margin-bottom: 30px; }
-
-        /* منطقة العجلة */
-        .wheel-outer-wrapper {
-            position: relative;
-            width: 360px;
-            height: 360px;
-            margin: 0 auto 40px auto;
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #fe2c55, #25f4ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        /* السهم المؤشر (ثابت في الأعلى) */
-        .pointer {
-            position: absolute;
-            top: -25px; /* موقعه فوق العجلة */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 18px solid transparent;
-            border-right: 18px solid transparent;
-            border-top: 35px solid #ef4444; /* لون أحمر زاهي */
-            z-index: 100; /* لضمان ظهوره فوق كل شيء */
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-        }
-
-        /* الحاوية التي تدور */
-        .wheel-canvas-wrapper {
-            width: 100%;
-            height: 100%;
-            transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1); /* حركة ناعمة جداً */
-            border-radius: 50%;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        #wheel {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 8px solid var(--card);
-            background: #334155;
-            display: block;
-        }
-
-        /* أدوات التحكم */
-        .controls {
-            background: var(--card);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            display: grid;
-            gap: 15px;
+        p.subtitle {
+            color: #aaa;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
         }
 
         .input-group {
+            position: relative;
             display: flex;
-            gap: 10px;
-            justify-content: center;
             align-items: center;
+            margin-bottom: 20px;
         }
 
-        input {
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #334155;
-            background: #0f172a;
-            color: white;
-            font-size: 16px;
-            flex-grow: 1;
-        }
-
-        button {
-            padding: 12px 25px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-            white-space: nowrap;
-        }
-
-        .btn-add { background: var(--primary); color: white; }
-        .btn-delete { background: #ef4444; color: white; }
-        .btn-spin { 
-            background: var(--secondary); 
-            color: white; 
-            font-size: 1.2rem;
+        input[type="text"] {
             width: 100%;
-            margin-top: 10px;
+            padding: 15px 20px;
+            padding-left: 60px; /* ترك مساحة لزر اللصق جهة اليسار */
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            text-align: left; /* لأن روابط تيك توك تكتب من اليسار لليمين */
+            direction: ltr;
         }
 
-        button:hover:not(:disabled) { opacity: 0.8; transform: translateY(-2px); }
-        button:disabled { background: #64748b; cursor: not-allowed; }
-
-        /* عرض النتيجة */
-        #result-wrapper {
-            margin-top: 20px;
-            min-height: 40px;
+        input[type="text"]:focus {
+            border-color: #fe2c55;
+            box-shadow: 0 0 15px rgba(254, 44, 85, 0.3);
         }
 
-        #result {
-            font-size: 1.8rem;
+        /* زر الحافظة داخل صندوق النص */
+        .paste-btn {
+            position: absolute;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .paste-btn:hover {
+            background: #25f4ee;
+            color: #000;
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 15px;
+            background: #fe2c55;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
             font-weight: bold;
-            color: #22c55e;
-            transition: 0.3s;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(254, 44, 85, 0.4);
         }
-        
-        .spinning #result { color: #94a3b8; } /* لون رمادي أثناء الدوران */
+
+        .download-btn:hover {
+            background: #e11d43;
+            transform: translateY(-2px);
+        }
+
+        .download-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .status {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: #25f4ee;
+        }
+
+        /* تنسيق كرت النتيجة عند التحميل */
+        .result-card {
+            margin-top: 25px;
+            display: none;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .result-card a {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #25f4ee;
+            color: #000;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-<div class="container" id="mainContainer">
-    <h1>🎡 روليت الحظ الاحترافي</h1>
-
-    <div class="wheel-outer-wrapper">
-        <div class="pointer"></div>
-        <div class="wheel-canvas-wrapper" id="wheelWrapper">
-            <canvas id="wheel"></canvas>
-        </div>
-    </div>
-
-    <div id="result-wrapper">
-        <div id="result">أضف أسماء وابدأ اللعب!</div>
-    </div>
-
-    <div class="controls">
-        <div class="input-group">
-            <input type="text" id="nameInput" placeholder="اكتب الاسم للإضافة...">
-            <button class="btn-add" onclick="addName()">إضافة للعجلة</button>
-        </div>
+    <div class="container">
+        <h1>مرحباً بك</h1>
+        <p class="subtitle">في موقع تنزيل من تيك توك بدون علامة مائية</p>
 
         <div class="input-group">
-            <input type="text" id="deleteInput" placeholder="اكتب الاسم لحذفه واضغط Enter..." onkeypress="handleDelete(event)">
-            <button class="btn-delete" onclick="deleteName()">حذف اسم</button>
+            <input type="text" id="tiktokUrl" placeholder="أدخل أو الصق رابط فيديو تيك توك هنا...">
+            <!-- زر الحافظة (لصق) -->
+            <button class="paste-btn" id="pasteBtn" title="لصق من الحافظة">
+                <i class="fa-regular fa-clipboard"></i>
+            </button>
         </div>
 
-        <button class="btn-spin" id="spinBtn" onclick="spinWheel()">🚀 تدوير العجلة!</button>
-    </div>
-</div>
+        <button class="download-btn" id="downloadBtn">تحميل الفيديو</button>
 
-<script>
-    // نظام الحفظ: جلب الأسماء أو استخدام افتراضية
-    let names = JSON.parse(localStorage.getItem('rouletteNames')) || ["أحمد", "سارة", "محمد", "نورة", "خالد", "ريم"];
-    
-    const canvas = document.getElementById('wheel');
-    const ctx = canvas.getContext('2d');
-    const wheelWrapper = document.getElementById('wheelWrapper');
-    const resultDisplay = document.getElementById('result');
-    const spinBtn = document.getElementById('spinBtn');
-    const mainContainer = document.getElementById('mainContainer');
-
-    let currentRotation = 0;
-    let isSpinning = false;
-    const size = 360; // حجم الكانفاس
-
-    // دالة لرسم العجلة بدقة
-    function drawWheel() {
-        canvas.width = size;
-        canvas.height = size;
-        const center = size / 2;
-        const radius = size / 2 - 5; // ترك هامش بسيط
-        const numNames = names.length;
-
-        ctx.clearRect(0, 0, size, size);
-
-        if (numNames === 0) {
-            // شكل العجلة فارغة
-            ctx.beginPath();
-            ctx.arc(center, center, radius, 0, 2 * Math.PI);
-            ctx.fillStyle = "#334155";
-            ctx.fill();
-            ctx.strokeStyle = "#475569";
-            ctx.stroke();
-            return;
-        }
-
-        const sliceAngle = (2 * Math.PI) / numNames;
-
-        names.forEach((name, i) => {
-            const startAngle = i * sliceAngle;
-            const endAngle = startAngle + sliceAngle;
-            
-            // 1. رسم شريحة الخلفية
-            ctx.beginPath();
-            ctx.moveTo(center, center);
-            // ألوان متناوبة احترافية
-            ctx.fillStyle = `hsl(${i * (360 / numNames)}, 70%, ${i % 2 === 0 ? 50 : 40}%)`;
-            ctx.arc(center, center, radius, startAngle, endAngle);
-            ctx.closePath();
-            ctx.fill();
-            
-            // خطوط حدودية خفيفة
-            ctx.strokeStyle = "rgba(255,255,255,0.2)";
-            ctx.lineWidth = 1;
-            ctx.stroke();
-
-            // 2. رسم النص
-            ctx.save();
-            ctx.translate(center, center);
-            // تدوير النص ليكون في منتصف الشريحة تماماً
-            ctx.rotate(startAngle + sliceAngle / 2);
-            
-            ctx.textAlign = "right";
-            ctx.fillStyle = "white";
-            // تصغير الخط تلقائياً إذا كثرت الأسماء
-            let fontSize = numNames > 20 ? 12 : (numNames > 10 ? 14 : 16);
-            ctx.font = `bold ${fontSize}px sans-serif`;
-            
-            // إضافة ظل للنص لزيادة الوضوح
-            ctx.shadowColor = "rgba(0,0,0,0.5)";
-            ctx.shadowBlur = 4;
-            
-            // رسم النص قبل نهاية الحافة بقليل
-            ctx.fillText(name, radius - 15, fontSize / 3);
-            ctx.restore();
-        });
-    }
-
-    // دالة التدوير وحساب الفائز بدقة
-    function spinWheel() {
-        if (isSpinning) return;
-        if (names.length < 2) {
-            alert("يرجى إضافة اسمين على الأقل للعب!");
-            return;
-        }
-
-        isSpinning = true;
-        spinBtn.disabled = true;
-        mainContainer.classList.add('spinning');
-        resultDisplay.innerText = "جاري السحب... التشويق يزيد! 🤔";
-
-        // 1. تحديد عدد دورات عشوائي كبير (بين 5 إلى 10 دورات كاملة + زاوية عشوائية)
-        const minRots = 5;
-        const maxRots = 10;
-        const randomExtraAngle = Math.random() * 360;
-        const totalSpinDegrees = (Math.floor(Math.random() * (maxRots - minRots + 1)) + minRots) * 360 + randomExtraAngle;
+        <div class="status" id="statusMessage"></div>
         
-        // تحديث التدوير التراكمي
-        currentRotation += totalSpinDegrees;
+        <!-- مكان ظهور الفيديو الجاهز للتحميل -->
+        <div class="result-card" id="resultCard">
+            <p>تم تجهيز الفيديو بنجاح!</p>
+            <a id="downloadLink" href="#" target="_blank" download>اضغط هنا لحفظ الفيديو المباشر</a>
+        </div>
+    </div>
 
-        // 2. تطبيق التحريك عبر CSS
-        wheelWrapper.style.transform = `rotate(${currentRotation}deg)`;
+    <script>
+        const tiktokUrlInput = document.getElementById('tiktokUrl');
+        const pasteBtn = document.getElementById('pasteBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const resultCard = document.getElementById('resultCard');
+        const downloadLink = document.getElementById('downloadLink');
 
-        // 3. انتظار انتهاء التحريك (5 ثوانٍ كما في CSS)
-        setTimeout(() => {
-            isSpinning = false;
-            spinBtn.disabled = false;
-            mainContainer.classList.remove('spinning');
+        // 1. ميزة زر الحافظة (Paste)
+        pasteBtn.addEventListener('click', async () => {
+            try {
+                // تطلب الإذن من المتصفح للقراءة من الحافظة
+                const text = await navigator.clipboard.readText();
+                tiktokUrlInput.value = text;
+                statusMessage.innerText = "تم اللصق بنجاح ✅";
+                setTimeout(() => statusMessage.innerText = "", 2000);
+            } catch (err) {
+                statusMessage.innerText = "عذراً، يرجى إعطاء صلاحية اللصق للموقع ❌";
+                console.error('فشل القراءة من الحافظة: ', err);
+            }
+        });
 
-            // --- الحساب الرياضي الدقيق المصحح ---
+        // 2. ميزة الضغط على Enter لبدء التحميل
+        tiktokUrlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // منع السلوك الافتراضي لـ Enter
+                startDownload();
+            }
+        });
 
-            // الزاوية النهائية الفعلية داخل الدائرة الواحدة (من 0 لـ 360)
-            const actualModuloAngle = currentRotation % 360;
+        // عند الضغط على زر التحميل الملون
+        downloadBtn.addEventListener('click', startDownload);
 
-            // في CSS، الدوران الموجب يكون مع عقارب الساعة.
-            // السهم موجود في الأعلى (زاوية 270 درجة في نظام إحداثيات الكانفاس الافتراضي، أو -90).
-            // لتحديد ما يقابل السهم تماماً، نحتاج عكس اتجاه الزاوية وإضافة 90 درجة لتصحيح موقع السهم العلوي.
-            let correctedAngle = (360 - actualModuloAngle + 90) % 360;
-            if (correctedAngle < 0) correctedAngle += 360; // ضمان أنها موجبة
-
-            const numNames = names.length;
-            const sliceDegrees = 360 / numNames;
-
-            // تحديد المؤشر (Index) بناءً على الزاوية المصححة
-            let winningIndex = Math.floor(correctedAngle / sliceDegrees);
+        // وظيفة جلب الفيديو وتحميله
+        async function startDownload() {
+            const url = tiktokUrlInput.value.trim();
             
-            // تصحيح أخطاء التقريب البرمجية النادرة جداً
-            if (winningIndex >= numNames) winningIndex = 0;
-
-            // عرض النتيجة النهائية
-            const winner = names[winningIndex];
-            resultDisplay.innerHTML = `🎉 الفائز هو: <span style="color:var(--secondary)">${winner}</span> 🎉`;
-            
-            // تأثير بصرى بسيط على النتيجة
-            resultDisplay.style.transform = "scale(1.1)";
-            setTimeout(()=> resultDisplay.style.transform = "scale(1)", 200);
-
-        }, 5000); // يجب أن تطابق مدة الـ transition في CSS
-    }
-
-    // إدارة الأسماء (إضافة/حذف/حفظ)
-    function addName() {
-        if (isSpinning) return;
-        const input = document.getElementById('nameInput');
-        const name = input.value.trim();
-        if (name) {
-            if (names.includes(name)) {
-                alert("هذا الاسم موجود بالفعل!");
+            if (!url) {
+                statusMessage.innerText = "الرجاء إدخال رابط أولاً! ⚠️";
                 return;
             }
-            names.push(name);
-            saveAndRefresh();
-            input.value = '';
-            input.focus();
-            resultDisplay.innerText = `تمت إضافة "${name}"`;
+
+            statusMessage.innerText = "جاري معالجة الرابط وجلب الفيديو بدون علامة مائية... ⏳";
+            downloadBtn.disabled = true;
+            resultCard.style.display = "none";
+
+            try {
+                // استخدام API مجانية خارجية لتحليل روابط تيك توك
+                const apiUrl = `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`;
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.code === 0 && data.data) {
+                    // الرابط المباشر للفيديو بدون علامة مائية
+                    const videoWithoutWatermark = data.data.play; 
+                    
+                    statusMessage.innerText = "جاهز للتحميل! 🎉";
+                    downloadLink.href = videoWithoutWatermark;
+                    resultCard.style.display = "block";
+                    
+                    // فتح الرابط في تبويب جديد تلقائياً لبدء التحميل
+                    window.open(videoWithoutWatermark, '_blank');
+                } else {
+                    statusMessage.innerText = "فشل جلب الفيديو. تأكد من أن الرابط صحيح وحساب صاحب الفيديو ليس خاصاً. ❌";
+                }
+            } catch (error) {
+                statusMessage.innerText = "حدث خطأ أثناء الاتصال بالسيرفر، يرجى المحاولة لاحقاً. ❌";
+                console.error(error);
+            } finally {
+                downloadBtn.disabled = false;
+            }
         }
-    }
-
-    function deleteName() {
-        if (isSpinning) return;
-        const input = document.getElementById('deleteInput');
-        const nameToDelete = input.value.trim();
-        if (!nameToDelete) return;
-
-        const index = names.indexOf(nameToDelete);
-        if (index > -1) {
-            names.splice(index, 1);
-            saveAndRefresh();
-            input.value = '';
-            resultDisplay.innerText = `تم حذف "${nameToDelete}"`;
-        } else {
-            alert("الاسم غير موجود في القائمة، تأكد من كتابته بشكل صحيح.");
-        }
-    }
-
-    function handleDelete(e) {
-        if (e.key === 'Enter') {
-            deleteName();
-        }
-    }
-
-    function saveAndRefresh() {
-        localStorage.setItem('rouletteNames', JSON.stringify(names));
-        drawWheel();
-        // إعادة تعيين الدوران عند تغيير الأسماء لتجنب القفزات المفاجئة
-        wheelWrapper.style.transition = 'none';
-        currentRotation = 0;
-        wheelWrapper.style.transform = `rotate(0deg)`;
-        // إعادة تفعيل التحريك في الدورة التالية
-        setTimeout(() => {
-            wheelWrapper.style.transition = 'transform 5s cubic-bezier(0.1, 0, 0.1, 1)';
-        }, 50);
-    }
-
-    // التشغيل الأولي عند تحميل الصفحة
-    drawWheel();
-</script>
-
+    </script>
 </body>
 </html>
