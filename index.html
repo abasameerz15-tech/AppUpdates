@@ -25,92 +25,7 @@
             align-items: center;
             padding: 20px;
             overflow: hidden !important; 
-            touch-action: none; /* يمنع السحب والتحريك على الهواتف */
-        }
-
-        /* ستايل شاشة القفل التليجرام */
-        .telegram-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(15px);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            transition: all 0.4s ease;
-        }
-
-        .telegram-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(0, 136, 204, 0.3); /* لون تليجرام */
-            padding: 40px 30px;
-            border-radius: 24px;
-            max-width: 450px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes popIn {
-            0% { transform: scale(0.7); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .telegram-card i.fa-telegram {
-            font-size: 4.5rem;
-            color: #0088cc;
-            margin-bottom: 20px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-            100% { transform: scale(1); }
-        }
-
-        .telegram-card h2 {
-            font-size: 1.8rem;
-            margin-bottom: 15px;
-            color: #fff;
-        }
-
-        .telegram-card p {
-            color: #ccc;
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-            line-height: 1.6;
-        }
-
-        .tg-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 15px;
-            background: #0088cc;
-            color: white;
-            border: none;
-            border-radius: 14px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 20px rgba(0, 136, 204, 0.4);
-        }
-
-        .tg-btn:hover {
-            background: #0077b3;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 136, 204, 0.6);
+            touch-action: none; /* منع السحب والتحريك على الهواتف */
         }
 
         /* ستايل محتوى الموقع الرئيسي */
@@ -201,6 +116,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 5px 15px rgba(254, 44, 85, 0.4);
+            margin-bottom: 15px;
         }
 
         .download-btn:hover {
@@ -216,25 +132,59 @@
         }
 
         .status {
-            margin-top: 20px;
             font-size: 1rem;
             color: #25f4ee;
             font-weight: 500;
+            min-height: 24px; /* للحفاظ على المساحة ثابتة عند ظهور النص */
+            margin-bottom: 15px;
+        }
+
+        /* خط فاصل أنيق بين التحميل وقسم التليجرام */
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 20px 0;
+        }
+
+        /* قسم التليجرام الجديد والاختياري */
+        .telegram-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .telegram-section p {
+            color: #bbb;
+            font-size: 0.95rem;
+        }
+
+        .tg-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #0088cc;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3);
+        }
+
+        .tg-btn:hover {
+            background: #0077b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 136, 204, 0.5);
         }
     </style>
 </head>
 <body>
-
-    <div class="telegram-overlay" id="telegramOverlay">
-        <div class="telegram-card">
-            <i class="fa-brands fa-telegram"></i>
-            <h2>الرجاء الاشتراك بقناتنا على تيليجرام أولاً</h2>
-            <p>للاستفادة من خدمة تحميل فيديوهات تيك توك بدون علامة مائية فوراً وبالمجان، يرجى دعمنا بالانضمام للقناة أولاً.</p>
-            <button class="tg-btn" id="subscribeBtn">
-                <i class="fa-brands fa-telegram"></i> اشتراك الآن
-            </button>
-        </div>
-    </div>
 
     <div class="container">
         <h1>مرحباً بك</h1>
@@ -250,28 +200,22 @@
         <button class="download-btn" id="downloadBtn">تحميل الفيديو فوراً</button>
 
         <div class="status" id="statusMessage"></div>
+
+        <div class="divider"></div>
+
+        <div class="telegram-section">
+            <p>تابعنا للحصول على آخر التحديثات</p>
+            <a href="https://t.me/SZSTORE_1" target="_blank" class="tg-btn">
+                <i class="fa-brands fa-telegram"></i> قناة التيليجرام
+            </a>
+        </div>
     </div>
 
     <script>
-        const telegramOverlay = document.getElementById('telegramOverlay');
-        const subscribeBtn = document.getElementById('subscribeBtn');
         const tiktokUrlInput = document.getElementById('tiktokUrl');
         const pasteBtn = document.getElementById('pasteBtn');
         const downloadBtn = document.getElementById('downloadBtn');
         const statusMessage = document.getElementById('statusMessage');
-
-        // ميزة فك قفل الموقع والتحويل الآمن للتليجرام
-        subscribeBtn.addEventListener('click', () => {
-            // 1. إخفاء شاشة القفل فوراً داخل المتصفح قبل الانتقال لأي تطبيق آخر
-            telegramOverlay.style.opacity = '0';
-            telegramOverlay.style.pointerEvents = 'none';
-            
-            // 2. فتح رابط التليجرام بعد نصف ثانية لضمان تنفيذ كود الإخفاء بنجاح
-            setTimeout(() => {
-                telegramOverlay.style.display = 'none';
-                window.open('https://t.me/SZSTORE_1', '_blank');
-            }, 400);
-        });
 
         // 1. ميزة زر الحافظة (Paste)
         pasteBtn.addEventListener('click', async () => {
