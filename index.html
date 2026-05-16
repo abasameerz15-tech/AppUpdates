@@ -2,9 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>موقع تنزيل من تيك توك</title>
-    <!-- استدعاء أيقونات FontAwesome لشكل الحافظة والتليجرام -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -13,17 +12,22 @@
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* منع تحديد النصوص بالخطأ أثناء اللمس العشوائي */
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         body {
             background: linear-gradient(135deg, #121212 0%, #1f1f1f 100%);
             color: #ffffff;
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            overflow: hidden; /* لمنع التمرير بالخلفية عند ظهور القفل */
+            /* منع السكرولينج والتحريك نهائياً وبشكل دائم */
+            overflow: hidden !important; 
+            touch-action: none; /* يمنع السحب والتحريك على الهواتف */
         }
 
         /* ستايل شاشة القفل التليجرام */
@@ -158,6 +162,8 @@
             transition: all 0.3s ease;
             text-align: left;
             direction: ltr;
+            -webkit-user-select: text; /* السماح بتحديد النص داخل حقل الإدخال فقط */
+            user-select: text;
         }
 
         input[type="text"]:focus {
@@ -221,19 +227,17 @@
 </head>
 <body>
 
-    <!-- قائمة القفل والاشتراك بالتليجرام أولاً -->
     <div class="telegram-overlay" id="telegramOverlay">
         <div class="telegram-card">
             <i class="fa-brands fa-telegram"></i>
             <h2>الرجاء الاشتراك بقناتنا على تيليجرام أولاً</h2>
             <p>للاستفادة من خدمة تحميل فيديوهات تيك توك بدون علامة مائية فوراً وبالمجان، يرجى دعمنا بالانضمام للقناة أولاً.</p>
-            <a href="https://t.me/SZSTORE0_1" target="_blank" class="tg-btn" id="subscribeBtn">
+            <a href="https://t.me/SZSTORE_1" target="_blank" class="tg-btn" id="subscribeBtn">
                 <i class="fa-brands fa-telegram"></i> اشتراك الآن
             </a>
         </div>
     </div>
 
-    <!-- محتويات الموقع الرئيسي -->
     <div class="container">
         <h1>مرحباً بك</h1>
         <p class="subtitle">في موقع تنزيل من تيك توك بدون علامة مائية</p>
@@ -258,13 +262,10 @@
         const downloadBtn = document.getElementById('downloadBtn');
         const statusMessage = document.getElementById('statusMessage');
 
-        // ميزة فك قفل الموقع بعد الضغط على زر الاشتراك
+        // ميزة فك قفل الموقع بعد الضغط على زر الاشتراك (مع إبقاء القفل على التحريك التلقائي للشاشة)
         subscribeBtn.addEventListener('click', () => {
-            // إخفاء قائمة القفل بتأثير حركي أنيق
             telegramOverlay.style.opacity = '0';
             telegramOverlay.style.pointerEvents = 'none';
-            // إعادة السماح بالتمرير في الموقع الرئيسي
-            document.body.style.overflow = 'auto';
             
             setTimeout(() => {
                 telegramOverlay.style.display = 'none';
@@ -339,6 +340,6 @@
                 downloadBtn.disabled = false;
             }
         }
-    </script>
+    </style>
 </body>
 </html>
