@@ -69,7 +69,7 @@
             font-size: 1rem;
             outline: none;
             transition: all 0.3s ease;
-            text-align: left; /* لأن روابط تيك توك تكتب من اليسار لليمين */
+            text-align: left;
             direction: ltr;
         }
 
@@ -129,27 +129,7 @@
             margin-top: 20px;
             font-size: 1rem;
             color: #25f4ee;
-        }
-
-        /* تنسيق كرت النتيجة عند التحميل */
-        .result-card {
-            margin-top: 25px;
-            display: none;
-            background: rgba(0,0,0,0.3);
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .result-card a {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
-            background: #25f4ee;
-            color: #000;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -167,15 +147,9 @@
             </button>
         </div>
 
-        <button class="download-btn" id="downloadBtn">تحميل الفيديو</button>
+        <button class="download-btn" id="downloadBtn">تحميل الفيديو فوراً</button>
 
         <div class="status" id="statusMessage"></div>
-        
-        <!-- مكان ظهور الفيديو الجاهز للتحميل -->
-        <div class="result-card" id="resultCard">
-            <p>تم تجهيز الفيديو بنجاح!</p>
-            <a id="downloadLink" href="#" target="_blank" download>اضغط هنا لحفظ الفيديو المباشر</a>
-        </div>
     </div>
 
     <script>
@@ -183,68 +157,74 @@
         const pasteBtn = document.getElementById('pasteBtn');
         const downloadBtn = document.getElementById('downloadBtn');
         const statusMessage = document.getElementById('statusMessage');
-        const resultCard = document.getElementById('resultCard');
-        const downloadLink = document.getElementById('downloadLink');
 
         // 1. ميزة زر الحافظة (Paste)
         pasteBtn.addEventListener('click', async () => {
             try {
-                // تطلب الإذن من المتصفح للقراءة من الحافظة
                 const text = await navigator.clipboard.readText();
                 tiktokUrlInput.value = text;
                 statusMessage.innerText = "تم اللصق بنجاح ✅";
                 setTimeout(() => statusMessage.innerText = "", 2000);
             } catch (err) {
                 statusMessage.innerText = "عذراً، يرجى إعطاء صلاحية اللصق للموقع ❌";
-                console.error('فشل القراءة من الحافظة: ', err);
             }
         });
 
         // 2. ميزة الضغط على Enter لبدء التحميل
         tiktokUrlInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                e.preventDefault(); // منع السلوك الافتراضي لـ Enter
+                e.preventDefault();
                 startDownload();
             }
         });
 
-        // عند الضغط على زر التحميل الملون
         downloadBtn.addEventListener('click', startDownload);
 
-        // وظيفة جلب الفيديو وتحميله
+        // وظيفة جلب الفيديو وتحميله مباشرة للجهاز
         async function startDownload() {
             const url = tiktokUrlInput.value.trim();
             
             if (!url) {
-                statusMessage.innerText = "الرجاء إدخال رابط أولاً! ⚠️";
+                statusMessage.innerText = "الرجاء إدخل رابط أولاً! ⚠️";
                 return;
             }
 
-            statusMessage.innerText = "جاري معالجة الرابط وجلب الفيديو بدون علامة مائية... ⏳";
+            statusMessage.innerText = "جاري استخراج الفيديو بدون علامة مائية... ⏳";
             downloadBtn.disabled = true;
-            resultCard.style.display = "none";
 
             try {
-                // استخدام API مجانية خارجية لتحليل روابط تيك توك
+                // الاتصال بالـ API لجلب الرابط المباشر
                 const apiUrl = `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`;
                 const response = await fetch(apiUrl);
                 const data = await response.json();
 
                 if (data.code === 0 && data.data) {
-                    // الرابط المباشر للفيديو بدون علامة مائية
-                    const videoWithoutWatermark = data.data.play; 
+                    const videoUrl = data.data.play; // رابط الفيديو بدون حقوق
                     
-                    statusMessage.innerText = "جاهز للتحميل! 🎉";
-                    downloadLink.href = videoWithoutWatermark;
-                    resultCard.style.display = "block";
+                    statusMessage.innerText = "جاري بدء التحميل المباشر للجهاز... 🚀";
+
+                    // حيلة برمجية لتحميل الفيديو فوراً دون فتح صفحة جديدة
+                    const videoResponse = await fetch(videoUrl);
+                    const blob = await videoResponse.blob(); // تحويل الفيديو لملف مؤقت
+                    const blobUrl = window.URL.createObjectURL(blob);
                     
-                    // فتح الرابط في تبويب جديد تلقائياً لبدء التحميل
-                    window.open(videoWithoutWatermark, '_blank');
+                    // إنشاء زر تحميل مخفي والضغط عليه برمجياً
+                    const tempLink = document.createElement('a');
+                    tempLink.href = blobUrl;
+                    tempLink.download = `TikTok-${Date.now()}.mp4`; // اسم الملف المحفوظ
+                    document.body.appendChild(tempLink);
+                    tempLink.click(); // أمر التحميل الفوري
+                    
+                    // تنظيف الذاكرة
+                    document.body.removeChild(tempLink);
+                    window.URL.revokeObjectURL(blobUrl);
+
+                    statusMessage.innerText = "تم تحميل الفيديو بنجاح! 🎉";
                 } else {
-                    statusMessage.innerText = "فشل جلب الفيديو. تأكد من أن الرابط صحيح وحساب صاحب الفيديو ليس خاصاً. ❌";
+                    statusMessage.innerText = "فشل جلب الفيديو، تأكد من صحة الرابط. ❌";
                 }
             } catch (error) {
-                statusMessage.innerText = "حدث خطأ أثناء الاتصال بالسيرفر، يرجى المحاولة لاحقاً. ❌";
+                statusMessage.innerText = "حدث خطأ أثناء تحميل الملف، يرجى المحاولة مجدداً. ❌";
                 console.error(error);
             } finally {
                 downloadBtn.disabled = false;
