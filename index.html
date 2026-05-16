@@ -12,7 +12,6 @@
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            /* منع تحديد النصوص بالخطأ أثناء اللمس العشوائي */
             -webkit-user-select: none;
             user-select: none;
         }
@@ -25,7 +24,6 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
-            /* منع السكرولينج والتحريك نهائياً وبشكل دائم */
             overflow: hidden !important; 
             touch-action: none; /* يمنع السحب والتحريك على الهواتف */
         }
@@ -44,7 +42,7 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
-            transition: all 0.5s ease;
+            transition: all 0.4s ease;
         }
 
         .telegram-card {
@@ -162,7 +160,7 @@
             transition: all 0.3s ease;
             text-align: left;
             direction: ltr;
-            -webkit-user-select: text; /* السماح بتحديد النص داخل حقل الإدخال فقط */
+            -webkit-user-select: text;
             user-select: text;
         }
 
@@ -232,9 +230,9 @@
             <i class="fa-brands fa-telegram"></i>
             <h2>الرجاء الاشتراك بقناتنا على تيليجرام أولاً</h2>
             <p>للاستفادة من خدمة تحميل فيديوهات تيك توك بدون علامة مائية فوراً وبالمجان، يرجى دعمنا بالانضمام للقناة أولاً.</p>
-            <a href="https://t.me/SZSTORE_1" target="_blank" class="tg-btn" id="subscribeBtn">
+            <button class="tg-btn" id="subscribeBtn">
                 <i class="fa-brands fa-telegram"></i> اشتراك الآن
-            </a>
+            </button>
         </div>
     </div>
 
@@ -262,14 +260,17 @@
         const downloadBtn = document.getElementById('downloadBtn');
         const statusMessage = document.getElementById('statusMessage');
 
-        // ميزة فك قفل الموقع بعد الضغط على زر الاشتراك (مع إبقاء القفل على التحريك التلقائي للشاشة)
+        // ميزة فك قفل الموقع والتحويل الآمن للتليجرام
         subscribeBtn.addEventListener('click', () => {
+            // 1. إخفاء شاشة القفل فوراً داخل المتصفح قبل الانتقال لأي تطبيق آخر
             telegramOverlay.style.opacity = '0';
             telegramOverlay.style.pointerEvents = 'none';
             
+            // 2. فتح رابط التليجرام بعد نصف ثانية لضمان تنفيذ كود الإخفاء بنجاح
             setTimeout(() => {
                 telegramOverlay.style.display = 'none';
-            }, 500);
+                window.open('https://t.me/SZSTORE_1', '_blank');
+            }, 400);
         });
 
         // 1. ميزة زر الحافظة (Paste)
@@ -340,6 +341,6 @@
                 downloadBtn.disabled = false;
             }
         }
-    </style>
+    </script>
 </body>
 </html>
