@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>موقع تنزيل من تيك توك</title>
-    <!-- استدعاء أيقونات FontAwesome لشكل الحافظة -->
+    <!-- استدعاء أيقونات FontAwesome لشكل الحافظة والتليجرام -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -23,8 +23,95 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            overflow: hidden; /* لمنع التمرير بالخلفية عند ظهور القفل */
         }
 
+        /* ستايل شاشة القفل التليجرام */
+        .telegram-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(15px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: all 0.5s ease;
+        }
+
+        .telegram-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 136, 204, 0.3); /* لون تليجرام */
+            padding: 40px 30px;
+            border-radius: 24px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .telegram-card i.fa-telegram {
+            font-size: 4.5rem;
+            color: #0088cc;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
+        .telegram-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .telegram-card p {
+            color: #ccc;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .tg-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 15px;
+            background: #0088cc;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 136, 204, 0.4);
+        }
+
+        .tg-btn:hover {
+            background: #0077b3;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 136, 204, 0.6);
+        }
+
+        /* ستايل محتوى الموقع الرئيسي */
         .container {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -61,7 +148,7 @@
         input[type="text"] {
             width: 100%;
             padding: 15px 20px;
-            padding-left: 60px; /* ترك مساحة لزر اللصق جهة اليسار */
+            padding-left: 60px;
             background: rgba(255, 255, 255, 0.08);
             border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
@@ -78,7 +165,6 @@
             box-shadow: 0 0 15px rgba(254, 44, 85, 0.3);
         }
 
-        /* زر الحافظة داخل صندوق النص */
         .paste-btn {
             position: absolute;
             left: 10px;
@@ -135,13 +221,25 @@
 </head>
 <body>
 
+    <!-- قائمة القفل والاشتراك بالتليجرام أولاً -->
+    <div class="telegram-overlay" id="telegramOverlay">
+        <div class="telegram-card">
+            <i class="fa-brands fa-telegram"></i>
+            <h2>الرجاء الاشتراك بقناتنا على تيليجرام أولاً</h2>
+            <p>للاستفادة من خدمة تحميل فيديوهات تيك توك بدون علامة مائية فوراً وبالمجان، يرجى دعمنا بالانضمام للقناة أولاً.</p>
+            <a href="https://t.me/SZSTORE0_1" target="_blank" class="tg-btn" id="subscribeBtn">
+                <i class="fa-brands fa-telegram"></i> اشتراك الآن
+            </a>
+        </div>
+    </div>
+
+    <!-- محتويات الموقع الرئيسي -->
     <div class="container">
         <h1>مرحباً بك</h1>
         <p class="subtitle">في موقع تنزيل من تيك توك بدون علامة مائية</p>
 
         <div class="input-group">
             <input type="text" id="tiktokUrl" placeholder="أدخل أو الصق رابط فيديو تيك توك هنا...">
-            <!-- زر الحافظة (لصق) -->
             <button class="paste-btn" id="pasteBtn" title="لصق من الحافظة">
                 <i class="fa-regular fa-clipboard"></i>
             </button>
@@ -153,10 +251,25 @@
     </div>
 
     <script>
+        const telegramOverlay = document.getElementById('telegramOverlay');
+        const subscribeBtn = document.getElementById('subscribeBtn');
         const tiktokUrlInput = document.getElementById('tiktokUrl');
         const pasteBtn = document.getElementById('pasteBtn');
         const downloadBtn = document.getElementById('downloadBtn');
         const statusMessage = document.getElementById('statusMessage');
+
+        // ميزة فك قفل الموقع بعد الضغط على زر الاشتراك
+        subscribeBtn.addEventListener('click', () => {
+            // إخفاء قائمة القفل بتأثير حركي أنيق
+            telegramOverlay.style.opacity = '0';
+            telegramOverlay.style.pointerEvents = 'none';
+            // إعادة السماح بالتمرير في الموقع الرئيسي
+            document.body.style.overflow = 'auto';
+            
+            setTimeout(() => {
+                telegramOverlay.style.display = 'none';
+            }, 500);
+        });
 
         // 1. ميزة زر الحافظة (Paste)
         pasteBtn.addEventListener('click', async () => {
@@ -185,7 +298,7 @@
             const url = tiktokUrlInput.value.trim();
             
             if (!url) {
-                statusMessage.innerText = "الرجاء إدخل رابط أولاً! ⚠️";
+                statusMessage.innerText = "الرجاء إدخال رابط أولاً! ⚠️";
                 return;
             }
 
@@ -193,29 +306,25 @@
             downloadBtn.disabled = true;
 
             try {
-                // الاتصال بالـ API لجلب الرابط المباشر
                 const apiUrl = `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`;
                 const response = await fetch(apiUrl);
                 const data = await response.json();
 
                 if (data.code === 0 && data.data) {
-                    const videoUrl = data.data.play; // رابط الفيديو بدون حقوق
+                    const videoUrl = data.data.play; 
                     
                     statusMessage.innerText = "جاري بدء التحميل المباشر للجهاز... 🚀";
 
-                    // حيلة برمجية لتحميل الفيديو فوراً دون فتح صفحة جديدة
                     const videoResponse = await fetch(videoUrl);
-                    const blob = await videoResponse.blob(); // تحويل الفيديو لملف مؤقت
+                    const blob = await videoResponse.blob(); 
                     const blobUrl = window.URL.createObjectURL(blob);
                     
-                    // إنشاء زر تحميل مخفي والضغط عليه برمجياً
                     const tempLink = document.createElement('a');
                     tempLink.href = blobUrl;
-                    tempLink.download = `TikTok-${Date.now()}.mp4`; // اسم الملف المحفوظ
+                    tempLink.download = `TikTok-${Date.now()}.mp4`; 
                     document.body.appendChild(tempLink);
-                    tempLink.click(); // أمر التحميل الفوري
+                    tempLink.click(); 
                     
-                    // تنظيف الذاكرة
                     document.body.removeChild(tempLink);
                     window.URL.revokeObjectURL(blobUrl);
 
