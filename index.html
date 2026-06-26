@@ -1,290 +1,603 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>موقع تنزيل من تيك توك</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            -webkit-user-select: none;
-            user-select: none;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SZ Vault</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
-        body {
-            background: linear-gradient(135deg, #121212 0%, #1f1f1f 100%);
-            color: #ffffff;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            overflow: hidden !important; 
-            touch-action: none; /* منع السحب والتحريك على الهواتف */
-        }
+  :root{
+    --void: #08090d;
+    --panel: #0f1117;
+    --line: #1d212b;
+    --cyan: #4ee1c2;
+    --amber: #e8a23b;
+    --red: #e85d5d;
+    --text: #e7e9ee;
+    --dim: #6b7280;
+  }
 
-        /* ستايل محتوى الموقع الرئيسي */
-        .container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 40px 30px;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-        }
+  *{margin:0;padding:0;box-sizing:border-box;}
 
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, #fe2c55, #25f4ee);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+  body{
+    background: var(--void);
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(78,225,194,0.06), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(232,162,59,0.05), transparent 40%);
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
 
-        p.subtitle {
-            color: #aaa;
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-        }
+  .card{
+    width: 100%;
+    max-width: 480px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 36px 32px;
+    position: relative;
+    overflow: hidden;
+  }
 
-        .input-group {
-            position: relative;
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
+  .card::before{
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    animation: scan 3s ease-in-out infinite;
+  }
 
-        input[type="text"] {
-            width: 100%;
-            padding: 15px 20px;
-            padding-left: 60px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.3s ease;
-            text-align: left;
-            direction: ltr;
-            -webkit-user-select: text;
-            user-select: text;
-        }
+  @keyframes scan{
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
 
-        input[type="text"]:focus {
-            border-color: #fe2c55;
-            box-shadow: 0 0 15px rgba(254, 44, 85, 0.3);
-        }
+  .eyebrow{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    direction: ltr;
+    text-align: right;
+  }
 
-        .paste-btn {
-            position: absolute;
-            left: 10px;
-            background: rgba(255, 255, 255, 0.15);
-            border: none;
-            color: #fff;
-            padding: 10px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+  h1{ font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+  .sub{ color: var(--dim); font-size: 14px; margin-bottom: 28px; line-height: 1.6; }
 
-        .paste-btn:hover {
-            background: #25f4ee;
-            color: #000;
-        }
+  .view{ display: none; }
+  .view.active{ display: block; animation: rise 0.35s ease; }
 
-        .download-btn {
-            width: 100%;
-            padding: 15px;
-            background: #fe2c55;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(254, 44, 85, 0.4);
-            margin-bottom: 15px;
-        }
+  @keyframes rise{
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-        .download-btn:hover {
-            background: #e11d43;
-            transform: translateY(-2px);
-        }
+  .stage{ min-height: 180px; }
 
-        .download-btn:disabled {
-            background: #555;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
+  .btn{
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    border: none;
+    background: var(--cyan);
+    color: #04130f;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
 
-        .status {
-            font-size: 1rem;
-            color: #25f4ee;
-            font-weight: 500;
-            min-height: 24px; /* للحفاظ على المساحة ثابتة عند ظهور النص */
-            margin-bottom: 15px;
-        }
+  .btn:hover{ transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,225,194,0.25); }
+  .btn:active{ transform: translateY(0); }
+  .btn:disabled{ opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
-        /* خط فاصل أنيق بين التحميل وقسم التليجرام */
-        .divider {
-            height: 1px;
-            background: rgba(255, 255, 255, 0.1);
-            margin: 20px 0;
-        }
+  .result{ display: none; }
+  .result.show{ display: block; animation: rise 0.4s ease; }
 
-        /* قسم التليجرام الجديد والاختياري */
-        .telegram-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
+  .link-box{
+    background: #04060a;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--cyan);
+    word-break: break-all;
+    direction: ltr;
+    text-align: left;
+    margin-bottom: 14px;
+    user-select: all;
+  }
 
-        .telegram-section p {
-            color: #bbb;
-            font-size: 0.95rem;
-        }
+  .copy-btn{
+    width: 100%;
+    padding: 13px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 18px;
+    transition: all 0.15s ease;
+  }
 
-        .tg-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px 24px;
-            background: #0088cc;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3);
-        }
+  .copy-btn:hover{ border-color: var(--cyan); background: rgba(78,225,194,0.06); }
+  .copy-btn.copied{ border-color: var(--cyan); color: var(--cyan); }
 
-        .tg-btn:hover {
-            background: #0077b3;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(0, 136, 204, 0.5);
-        }
-    </style>
+  .warning{
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: rgba(232,162,59,0.07);
+    border: 1px solid rgba(232,162,59,0.25);
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #f0c98a;
+  }
+
+  .warning svg{ flex-shrink: 0; margin-top: 2px; }
+
+  .task-box{
+    background: #04060a;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+
+  .task-label{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  .equation{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--cyan);
+    text-align: center;
+    margin-bottom: 18px;
+    direction: ltr;
+  }
+
+  .choices{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .choice{
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .choice:hover{ border-color: var(--cyan); background: rgba(78,225,194,0.06); }
+  .choice.wrong{ border-color: var(--red); background: rgba(232,93,93,0.1); }
+  .choice.correct{ border-color: var(--cyan); background: rgba(78,225,194,0.15); }
+
+  .timer-ring{
+    width: 88px;
+    height: 88px;
+    margin: 0 auto 18px;
+    position: relative;
+  }
+
+  .timer-ring svg{ transform: rotate(-90deg); }
+  .timer-ring circle{ fill: none; stroke-width: 5; }
+  .timer-bg{ stroke: var(--line); }
+  .timer-fg{
+    stroke: var(--amber);
+    stroke-dasharray: 251;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear;
+    stroke-linecap: round;
+  }
+
+  .timer-num{
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--amber);
+  }
+
+  .center-text{ text-align: center; color: var(--dim); font-size: 14px; margin-bottom: 8px; }
+
+  .key-display{
+    background: #04060a;
+    border: 1px solid var(--cyan);
+    border-radius: 12px;
+    padding: 22px;
+    text-align: center;
+    margin-bottom: 18px;
+  }
+
+  .key-label{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+    margin-bottom: 10px;
+    letter-spacing: 0.1em;
+  }
+
+  .key-value{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--cyan);
+    word-break: break-all;
+    direction: ltr;
+    user-select: all;
+  }
+
+  .key-expiry{ margin-top: 12px; font-size: 12px; color: var(--dim); }
+
+  .status-icon{
+    width: 56px; height: 56px;
+    margin: 0 auto 16px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+  }
+
+  .status-icon.error{ background: rgba(232,93,93,0.12); }
+  .status-icon.success{ background: rgba(78,225,194,0.12); }
+
+  .center-msg{ text-align: center; color: var(--dim); font-size: 14px; line-height: 1.7; }
+
+  .loader{
+    display: flex; align-items: center; justify-content: center;
+    height: 180px; gap: 4px;
+  }
+
+  .loader span{
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--cyan);
+    animation: pulse 1s ease-in-out infinite;
+  }
+  .loader span:nth-child(2){ animation-delay: 0.15s; }
+  .loader span:nth-child(3){ animation-delay: 0.3s; }
+
+  @keyframes pulse{
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  .err{ color: #f08080; font-size: 13px; margin-top: 12px; text-align: center; }
+</style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>مرحباً بك</h1>
-        <p class="subtitle">في موقع تنزيل من تيك توك بدون علامة مائية</p>
+  <div class="card">
 
-        <div class="input-group">
-            <input type="text" id="tiktokUrl" placeholder="أدخل أو الصق رابط فيديو تيك توك هنا...">
-            <button class="paste-btn" id="pasteBtn" title="لصق من الحافظة">
-                <i class="fa-regular fa-clipboard"></i>
-            </button>
+    <!-- ============== صفحة إنشاء الرابط ============== -->
+    <div class="view" id="viewCreate">
+      <div class="eyebrow">SZ // VAULT ACCESS</div>
+      <h1>إنشاء رابط مفتاح سري</h1>
+      <p class="sub">يولّد هذا الرابط مرة واحدة فقط. كل من يفتحه يقدر يكمل المهمة ويحصل على مفتاح صالح لمدة 24 ساعة.</p>
+
+      <div class="stage">
+        <button class="btn" id="genBtn" onclick="generateLink()">إنشاء الرابط</button>
+
+        <div class="result" id="createResult">
+          <div class="link-box" id="linkBox"></div>
+          <button class="copy-btn" id="copyLinkBtn" onclick="copyLink()">نسخ الرابط</button>
+          <div class="warning">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e8a23b" stroke-width="2">
+              <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+            <div>قم بحفظ الرابط بمكان آمن. لو ضاع، تضطر تنشئ رابط جديد من جديد.</div>
+          </div>
         </div>
-
-        <button class="download-btn" id="downloadBtn">تحميل الفيديو فوراً</button>
-
-        <div class="status" id="statusMessage"></div>
-
-        <div class="divider"></div>
-
-        <div class="telegram-section">
-            <p>تابعنا للحصول على آخر التحديثات</p>
-            <a href="https://t.me/SZSTORE_1" target="_blank" class="tg-btn">
-                <i class="fa-brands fa-telegram"></i> قناة التيليجرام
-            </a>
-        </div>
+      </div>
     </div>
 
-    <script>
-        const tiktokUrlInput = document.getElementById('tiktokUrl');
-        const pasteBtn = document.getElementById('pasteBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const statusMessage = document.getElementById('statusMessage');
+    <!-- ============== صفحة استلام المفتاح ============== -->
+    <div class="view" id="viewClaim">
+      <div class="eyebrow">SZ // VAULT ACCESS</div>
+      <h1>إكمال المهمة</h1>
+      <p class="sub">أكمل المهمة البسيطة بالأسفل لتحصل على مفتاح صالح لمدة 24 ساعة.</p>
 
-        // 1. ميزة زر الحافظة (Paste)
-        pasteBtn.addEventListener('click', async () => {
-            try {
-                const text = await navigator.clipboard.readText();
-                tiktokUrlInput.value = text;
-                statusMessage.innerText = "تم اللصق بنجاح ✅";
-                setTimeout(() => statusMessage.innerText = "", 2000);
-            } catch (err) {
-                statusMessage.innerText = "عذراً، يرجى إعطاء صلاحية اللصق للموقع ❌";
-            }
-        });
+      <div class="stage">
 
-        // 2. ميزة الضغط على Enter لبدء التحميل
-        tiktokUrlInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                startDownload();
-            }
-        });
+        <div class="step active" id="stepLoading">
+          <div class="loader"><span></span><span></span><span></span></div>
+        </div>
 
-        downloadBtn.addEventListener('click', startDownload);
+        <div class="step" id="stepInvalid">
+          <div class="status-icon error">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#e85d5d" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/>
+            </svg>
+          </div>
+          <p class="center-msg">هذا الرابط غير صالح أو غير موجود.</p>
+        </div>
 
-        // وظيفة جلب الفيديو وتحميله مباشرة للجهاز
-        async function startDownload() {
-            const url = tiktokUrlInput.value.trim();
-            
-            if (!url) {
-                statusMessage.innerText = "الرجاء إدخال رابط أولاً! ⚠️";
-                return;
-            }
+        <div class="step" id="stepUsed">
+          <div class="status-icon error">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#e85d5d" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+            </svg>
+          </div>
+          <p class="center-msg">تم استخدام هذا الرابط بالفعل من قبل.</p>
+        </div>
 
-            statusMessage.innerText = "جاري استخراج الفيديو بدون علامة مائية... ⏳";
-            downloadBtn.disabled = true;
+        <div class="step" id="stepTask">
+          <div class="task-box">
+            <div class="task-label">حل المعادلة للتأكد أنك إنسان حقيقي</div>
+            <div class="equation" id="equationText">— — —</div>
+            <div class="choices" id="choicesGrid"></div>
+          </div>
+        </div>
 
-            try {
-                const apiUrl = `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`;
-                const response = await fetch(apiUrl);
-                const data = await response.json();
+        <div class="step" id="stepTimer">
+          <div class="timer-ring">
+            <svg width="88" height="88">
+              <circle class="timer-bg" cx="44" cy="44" r="40"/>
+              <circle class="timer-fg" id="timerCircle" cx="44" cy="44" r="40"/>
+            </svg>
+            <div class="timer-num" id="timerNum">15</div>
+          </div>
+          <p class="center-text">جاري تجهيز مفتاحك...</p>
+        </div>
 
-                if (data.code === 0 && data.data) {
-                    const videoUrl = data.data.play; 
-                    
-                    statusMessage.innerText = "جاري بدء التحميل المباشر للجهاز... 🚀";
+        <div class="step" id="stepResult">
+          <div class="status-icon success">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#4ee1c2" stroke-width="2">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+          </div>
+          <div class="key-display">
+            <div class="key-label">مفتاحك الصالح لمدة 24 ساعة</div>
+            <div class="key-value" id="keyValue">—</div>
+            <div class="key-expiry" id="keyExpiry"></div>
+          </div>
+          <button class="copy-btn" id="copyKeyBtn" onclick="copyKey()">نسخ المفتاح</button>
+        </div>
 
-                    const videoResponse = await fetch(videoUrl);
-                    const blob = await videoResponse.blob(); 
-                    const blobUrl = window.URL.createObjectURL(blob);
-                    
-                    const tempLink = document.createElement('a');
-                    tempLink.href = blobUrl;
-                    tempLink.download = `TikTok-${Date.now()}.mp4`; 
-                    document.body.appendChild(tempLink);
-                    tempLink.click(); 
-                    
-                    document.body.removeChild(tempLink);
-                    window.URL.revokeObjectURL(blobUrl);
+      </div>
+    </div>
 
-                    statusMessage.innerText = "تم تحميل الفيديو بنجاح! 🎉";
-                } else {
-                    statusMessage.innerText = "فشل جلب الفيديو، تأكد من صحة الرابط. ❌";
-                }
-            } catch (error) {
-                statusMessage.innerText = "حدث خطأ أثناء تحميل الملف، يرجى المحاولة مجدداً. ❌";
-                console.error(error);
-            } finally {
-                downloadBtn.disabled = false;
-            }
-        }
-    </script>
+  </div>
+
+<script>
+  const FIREBASE_BASE = "https://sz-key-default-rtdb.firebaseio.com";
+
+  // تحديد العرض المطلوب: لو فيه ?id= بالرابط نفتح صفحة الاستلام، وإلا صفحة الإنشاء
+  const params = new URLSearchParams(window.location.search);
+  const linkId = params.get('id');
+  const hwid = params.get('hwid') || null;
+
+  function showView(id){
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function showStep(id){
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function genId(len){
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let out = "";
+    for(let i=0;i<len;i++) out += chars[Math.floor(Math.random()*chars.length)];
+    return out;
+  }
+
+  function genKey(){
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let seg = () => {
+      let s = "";
+      for(let i=0;i<4;i++) s += chars[Math.floor(Math.random()*chars.length)];
+      return s;
+    };
+    return `SZ-${seg()}-${seg()}-${seg()}`;
+  }
+
+  // ---------------- منطق صفحة الإنشاء ----------------
+  async function generateLink(){
+    const btn = document.getElementById('genBtn');
+    btn.disabled = true;
+    btn.textContent = "جاري الإنشاء...";
+
+    const newId = genId(28);
+    const createdAt = Date.now();
+
+    try {
+      const res = await fetch(`${FIREBASE_BASE}/links/${newId}.json`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "pending", createdAt: createdAt })
+      });
+
+      if(!res.ok) throw new Error("فشل الإنشاء");
+
+      const fullLink = `${window.location.origin}${window.location.pathname}?id=${newId}`;
+
+      document.getElementById('linkBox').textContent = fullLink;
+      document.getElementById('createResult').classList.add('show');
+      btn.style.display = 'none';
+
+    } catch(e){
+      btn.disabled = false;
+      btn.textContent = "إنشاء الرابط";
+      const err = document.createElement('div');
+      err.className = 'err';
+      err.textContent = "حدث خطأ، حاول مرة أخرى";
+      btn.parentNode.appendChild(err);
+    }
+  }
+
+  function copyLink(){
+    const text = document.getElementById('linkBox').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyLinkBtn');
+      btn.textContent = "تم النسخ ✓";
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = "نسخ الرابط"; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  // ---------------- منطق صفحة الاستلام ----------------
+  async function initClaim(){
+    if(!linkId){
+      showStep('stepInvalid');
+      return;
+    }
+
+    try{
+      const res = await fetch(`${FIREBASE_BASE}/links/${linkId}.json`);
+      const data = await res.json();
+
+      if(!data){ showStep('stepInvalid'); return; }
+      if(data.status === 'used'){ showStep('stepUsed'); return; }
+
+      startTask();
+
+    } catch(e){
+      showStep('stepInvalid');
+    }
+  }
+
+  let correctAnswer = null;
+
+  function startTask(){
+    const a = Math.floor(Math.random() * 12) + 3;
+    const b = Math.floor(Math.random() * 9) + 2;
+    correctAnswer = a * b;
+
+    document.getElementById('equationText').textContent = `${a} × ${b} = ?`;
+
+    const wrongOffsets = [-7, -3, 4, 8].sort(() => Math.random() - 0.5).slice(0, 3);
+    let choices = wrongOffsets.map(o => correctAnswer + o).filter(v => v > 0 && v !== correctAnswer);
+    while(choices.length < 3){
+      const fake = correctAnswer + Math.floor(Math.random()*10) - 5;
+      if(fake > 0 && fake !== correctAnswer && !choices.includes(fake)) choices.push(fake);
+    }
+    choices.push(correctAnswer);
+    choices = choices.sort(() => Math.random() - 0.5);
+
+    const grid = document.getElementById('choicesGrid');
+    grid.innerHTML = '';
+    choices.forEach(val => {
+      const b = document.createElement('button');
+      b.className = 'choice';
+      b.textContent = val;
+      b.onclick = () => handleAnswer(b, val);
+      grid.appendChild(b);
+    });
+
+    showStep('stepTask');
+  }
+
+  function handleAnswer(btn, val){
+    document.querySelectorAll('.choice').forEach(c => c.onclick = null);
+    if(val === correctAnswer){
+      btn.classList.add('correct');
+      setTimeout(startTimer, 500);
+    } else {
+      btn.classList.add('wrong');
+      setTimeout(startTask, 700);
+    }
+  }
+
+  function startTimer(){
+    showStep('stepTimer');
+    let secondsLeft = 15;
+    const totalDash = 251;
+    const circle = document.getElementById('timerCircle');
+    const num = document.getElementById('timerNum');
+
+    const interval = setInterval(() => {
+      secondsLeft--;
+      num.textContent = secondsLeft;
+      circle.style.strokeDashoffset = totalDash * (1 - secondsLeft/15);
+      if(secondsLeft <= 0){
+        clearInterval(interval);
+        finalizeKey();
+      }
+    }, 1000);
+  }
+
+  async function finalizeKey(){
+    const key = genKey();
+    const now = Date.now();
+    const expiresAt = now + (24 * 60 * 60 * 1000);
+
+    try{
+      await fetch(`${FIREBASE_BASE}/keys/${key}.json`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ createdAt: now, expiresAt: expiresAt, hwid: hwid, linkId: linkId })
+      });
+
+      await fetch(`${FIREBASE_BASE}/links/${linkId}.json`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "used", key: key, usedAt: now })
+      });
+
+      document.getElementById('keyValue').textContent = key;
+      const expiryDate = new Date(expiresAt);
+      document.getElementById('keyExpiry').textContent =
+        `ينتهي بتاريخ ${expiryDate.toLocaleDateString('ar')} الساعة ${expiryDate.toLocaleTimeString('ar')}`;
+
+      showStep('stepResult');
+
+    } catch(e){
+      document.getElementById('keyValue').textContent = "خطأ — حاول تحديث الصفحة";
+      showStep('stepResult');
+    }
+  }
+
+  function copyKey(){
+    const key = document.getElementById('keyValue').textContent;
+    navigator.clipboard.writeText(key).then(() => {
+      const btn = document.getElementById('copyKeyBtn');
+      btn.textContent = "تم النسخ ✓";
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = "نسخ المفتاح"; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  // ---------------- نقطة الدخول: اختيار الصفحة حسب الرابط ----------------
+  if(linkId){
+    showView('viewClaim');
+    initClaim();
+  } else {
+    showView('viewCreate');
+  }
+</script>
+
 </body>
 </html>
