@@ -1,570 +1,339 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SZ Key System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>هاكات وسكربتات عربي</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-        
+        /* منع السكرول تمامًا */
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden !important;
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Cairo', sans-serif;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             min-height: 100vh;
+            background: radial-gradient(circle at 30% 10%, #1a0c0c 0%, #0d0505 100%);
             display: flex;
             justify-content: center;
             align-items: center;
+            font-family: 'Cairo', 'Segoe UI', system-ui, sans-serif;
             padding: 20px;
-        }
-        
-        .container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border-radius: 30px;
-            padding: 40px;
-            max-width: 600px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .logo {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 60px;
-        }
-        
-        h1 {
-            color: #fff;
-            font-size: 2.5em;
-            font-weight: 900;
-            text-align: center;
-            background: linear-gradient(45deg, #8A2BE2, #4A00E0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .subtitle {
-            color: rgba(255, 255, 255, 0.7);
-            text-align: center;
-            margin: 10px 0 25px;
-        }
-        
-        .info-box {
-            background: rgba(138, 43, 226, 0.1);
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-        
-        .info-row {
-            display: flex;
-            align-items: center;
-            margin: 10px 0;
-            gap: 10px;
-            color: #fff;
-            flex-wrap: wrap;
-        }
-        
-        .info-label {
-            color: rgba(255, 255, 255, 0.6);
-            min-width: 100px;
-        }
-        
-        .info-value {
-            color: #8A2BE2;
-            background: rgba(138, 43, 226, 0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9em;
-        }
-        
-        .btn {
-            width: 100%;
-            padding: 18px;
-            border: none;
-            border-radius: 15px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 1.2em;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 10px 0;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(45deg, #8A2BE2, #4A00E0);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(138, 43, 226, 0.4);
-        }
-        
-        .btn-success {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
-        }
-        
-        .btn-success:hover:not(:disabled) {
-            transform: translateY(-3px);
-        }
-        
-        .btn-success:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .box {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 15px 0;
-            display: none;
-        }
-        
-        .box.show {
-            display: block;
-        }
-        
-        .link-text {
-            color: #fff;
-            word-break: break-all;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 8px;
-            margin: 10px 0;
-            font-size: 0.85em;
-            direction: ltr;
-            text-align: left;
-        }
-        
-        .key-text {
-            color: #FFD700;
-            font-size: 1.5em;
-            font-weight: 900;
-            word-break: break-all;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            direction: ltr;
-            text-align: center;
-        }
-        
-        .warning {
-            color: #FFD700;
-            font-weight: 600;
-            text-align: center;
-            margin: 10px 0;
-        }
-        
-        .success {
-            color: #4CAF50;
-            font-weight: 600;
-            text-align: center;
-        }
-        
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
-            color: white;
-        }
-        
-        .checkbox-container input {
-            width: 22px;
-            height: 22px;
-            accent-color: #8A2BE2;
-        }
-        
-        .progress {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 3px;
-            margin: 15px 0;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: #8A2BE2;
-            border-radius: 3px;
-            width: 0%;
-            transition: width 0.3s;
-        }
-        
-        .loader {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 0.8s linear infinite;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .toast {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #4CAF50;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-weight: 600;
-            z-index: 999;
+            position: relative;
         }
 
-        .page {
-            display: none;
+        /* خلفية ذهبية ناعمة */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 80%, rgba(212, 175, 55, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
         }
-        
-        .page.active {
+
+        .card {
+            max-width: 480px;
+            width: 100%;
+            background: linear-gradient(145deg, rgba(25, 15, 10, 0.85), rgba(10, 5, 3, 0.95));
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 58px 58px 48px 48px;
+            padding: 32px 24px 40px;
+            box-shadow: 0 25px 50px -8px rgba(0,0,0,0.9), 0 0 0 1px rgba(212, 175, 55, 0.15) inset;
+            position: relative;
+            z-index: 2;
+            transition: box-shadow 0.3s ease;
+            text-align: center;
+        }
+
+        /* توهج ذهبي خفيف */
+        .card::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 20%;
+            right: 20%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #d4af37, #f5d77b, #d4af37, transparent);
+            filter: blur(1px);
+            border-radius: 100%;
+            opacity: 0.7;
+        }
+
+        /* إطار الصورة الدائري الفخم */
+        .image-wrapper {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 28px;
+            border-radius: 50%;
+            padding: 8px;
+            background: linear-gradient(135deg, #d4af37, #b8962e, #f5d77b, #b8962e);
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3), 0 0 80px rgba(212, 175, 55, 0.1);
+            animation: borderGlow 3s infinite alternate;
+        }
+
+        @keyframes borderGlow {
+            0% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.2), 0 0 60px rgba(212, 175, 55, 0.05); }
+            100% { box-shadow: 0 0 50px rgba(212, 175, 55, 0.5), 0 0 100px rgba(212, 175, 55, 0.15); }
+        }
+
+        .image-container {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #0f0a07;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid #1a100b;
+            position: relative;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             display: block;
+            animation: floatImage 3.8s ease-in-out infinite;
+            filter: saturate(1.05) contrast(1.02);
+            border-radius: 50%;
+        }
+
+        /* حركة الصعود والهبوط */
+        @keyframes floatImage {
+            0% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-18px) scale(1.02); }
+            100% { transform: translateY(0px) scale(1); }
+        }
+
+        /* النص الرئيسي */
+        .main-title {
+            font-size: 1.7rem;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 18px;
+            color: #f5e7c8;
+            text-shadow: 0 2px 15px rgba(212, 175, 55, 0.3);
+            letter-spacing: 0.5px;
+            word-spacing: 2px;
+        }
+
+        .main-title span {
+            background: linear-gradient(135deg, #f5d77b, #d4af37, #b8962e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            display: inline-block;
+        }
+
+        .description {
+            font-size: 1rem;
+            color: #cdbaa0;
+            background: rgba(212, 175, 55, 0.04);
+            padding: 14px 16px;
+            border-radius: 60px;
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(212, 175, 55, 0.08);
+            margin: 12px 0 32px;
+            line-height: 1.7;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .description strong {
+            color: #f5d77b;
+            font-weight: 600;
+        }
+
+        /* زر الدخول الفخم */
+        .btn-gold {
+            display: inline-block;
+            background: linear-gradient(145deg, #d4af37, #b8962e);
+            border: none;
+            padding: 16px 44px;
+            border-radius: 60px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0d0505;
+            text-decoration: none;
+            box-shadow: 0 8px 28px rgba(212, 175, 55, 0.35), 0 0 0 1px #f5d77b inset;
+            transition: all 0.25s ease;
+            letter-spacing: 1px;
+            text-shadow: 0 1px 2px rgba(255, 215, 0, 0.3);
+            cursor: pointer;
+            width: 100%;
+            max-width: 260px;
+            margin: 8px auto 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-gold::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 40%, rgba(255, 235, 140, 0.3), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+        }
+
+        .btn-gold:hover {
+            transform: scale(1.04) translateY(-3px);
+            box-shadow: 0 14px 40px rgba(212, 175, 55, 0.5), 0 0 0 2px #f5d77b inset;
+            background: linear-gradient(145deg, #e2c14a, #c49f30);
+        }
+
+        .btn-gold:hover::before {
+            opacity: 1;
+        }
+
+        .btn-gold:active {
+            transform: scale(0.97) translateY(2px);
+            box-shadow: 0 4px 18px rgba(212, 175, 55, 0.4);
+        }
+
+        /* زخارف جانبية */
+        .ornament {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 28px;
+            opacity: 0.4;
+        }
+
+        .ornament span {
+            display: inline-block;
+            width: 34px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #d4af37, transparent);
+            border-radius: 10px;
+        }
+
+        /* تنسيق الجوال */
+        @media (max-width: 480px) {
+            .card {
+                padding: 28px 18px 32px;
+                border-radius: 44px;
+            }
+            .image-wrapper {
+                width: 150px;
+                height: 150px;
+                padding: 6px;
+            }
+            .main-title {
+                font-size: 1.4rem;
+            }
+            .description {
+                font-size: 0.95rem;
+                padding: 12px 14px;
+            }
+            .btn-gold {
+                font-size: 1.1rem;
+                padding: 14px 20px;
+                max-width: 220px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .image-wrapper {
+                width: 130px;
+                height: 130px;
+            }
+            .main-title {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* تحسين الخط العربي */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+
+        /* إضافة لمسة من الأناقة */
+        .glow-text {
+            animation: softPulse 3s infinite alternate;
+        }
+
+        @keyframes softPulse {
+            0% { text-shadow: 0 0 8px rgba(212, 175, 55, 0.1); }
+            100% { text-shadow: 0 0 25px rgba(212, 175, 55, 0.25); }
+        }
+
+        /* شريط سفلي */
+        .footer-note {
+            margin-top: 26px;
+            font-size: 0.65rem;
+            color: #7a6a55;
+            letter-spacing: 1px;
+            word-spacing: 2px;
+            border-top: 1px solid rgba(212, 175, 55, 0.08);
+            padding-top: 16px;
+            opacity: 0.6;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- الصفحة الرئيسية -->
-        <div id="mainPage" class="page active">
-            <div class="logo">🔐</div>
-            <h1>SZ Key System</h1>
-            <p class="subtitle">نظام المفاتيح السرية</p>
-            
-            <div class="info-box">
-                <div class="info-row">
-                    <span>🖥️</span>
-                    <span class="info-label">IP:</span>
-                    <span class="info-value" id="ipDisplay">جاري التحميل...</span>
-                </div>
-                <div class="info-row">
-                    <span>🔑</span>
-                    <span class="info-label">المفتاح:</span>
-                    <span class="info-value" id="keyStatusDisplay">لا يوجد</span>
-                </div>
-            </div>
-            
-            <button class="btn btn-primary" id="generateBtn" onclick="generateLink()">
-                🔗 انشاء رابط مفتاح سري
-            </button>
-            
-            <div class="box" id="linkBox">
-                <p style="color:#8A2BE2;font-weight:700;">✅ تم انشاء الرابط!</p>
-                <div class="link-text" id="linkDisplay"></div>
-                <p class="warning">⚠️ احفظ الرابط بمكان آمن - خاص بجهازك فقط</p>
-                <p style="color:rgba(255,255,255,0.6);text-align:center;font-size:0.8em;">تم النسخ ✓</p>
-            </div>
-        </div>
-        
-        <!-- صفحة المهمة -->
-        <div id="taskPage" class="page">
-            <div class="logo">📋</div>
-            <h1>اكمال المهمة</h1>
-            <p class="subtitle">أكمل المهمة للحصول على مفتاح 24 ساعة</p>
-            
-            <div class="info-box">
-                <div class="info-row">
-                    <span>📡</span>
-                    <span class="info-label">حالة الرابط:</span>
-                    <span class="info-value" id="linkCheckStatus">جاري التحقق...</span>
-                </div>
-            </div>
-            
-            <div class="box" id="taskBox">
-                <p style="color:#8A2BE2;font-weight:700;font-size:1.2em;text-align:center;">🎯 المهمة</p>
-                <p style="color:#fff;text-align:center;margin:15px 0;">يرجى تأكيد انك لست روبوت</p>
-                
-                <div class="checkbox-container">
-                    <input type="checkbox" id="confirmCheckbox" onchange="updateTaskProgress()">
-                    <label for="confirmCheckbox">أكد اني لست روبوت 🤖</label>
-                </div>
-                
-                <div class="progress">
-                    <div class="progress-fill" id="taskProgress"></div>
-                </div>
-                
-                <button class="btn btn-success" id="completeTaskBtn" onclick="finishTask()" disabled>
-                    ✅ اكمال المهمة
-                </button>
-            </div>
-            
-            <div class="box" id="keyResultBox">
-                <p class="success">🎉 تم انشاء المفتاح!</p>
-                <div class="key-text" id="keyResultText"></div>
-                <p style="color:#fff;text-align:center;">⏰ صالح لمدة 24 ساعة</p>
-                <p class="warning">⚠️ انسخ المفتاح واستخدمه في السكربت</p>
-                <p style="color:rgba(255,255,255,0.6);text-align:center;font-size:0.8em;">تم النسخ ✓</p>
-            </div>
-            
-            <div class="box" id="errorBox" style="border-color:rgba(255,0,0,0.3);">
-                <p style="color:#ff4444;text-align:center;font-weight:600;" id="errorText"></p>
-            </div>
+
+<div class="card">
+    <!-- الصورة الدائرية مع الإطار الذهبي -->
+    <div class="image-wrapper">
+        <div class="image-container">
+            <img src="https://raw.githubusercontent.com/abasameerz15-tech/AppUpdates/refs/heads/main/IMG_20260621_170821_608.jpg" 
+                 alt="شعار الهاكات والسكربتات" 
+                 loading="eager" 
+                 decoding="async">
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        
-        const firebaseConfig = {
-            databaseURL: "https://sz-key-default-rtdb.firebaseio.com/"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-        
-        let userIP = '';
-        
-        // تحديد الصفحة
-        const urlParams = new URLSearchParams(window.location.search);
-        const taskCode = urlParams.get('code');
-        const taskIP = urlParams.get('ip');
-        
-        if (taskCode && taskIP) {
-            document.getElementById('mainPage').classList.remove('active');
-            document.getElementById('taskPage').classList.add('active');
-        }
-        
-        // الحصول على IP
-        async function getIP() {
-            try {
-                const res = await fetch('https://api.ipify.org?format=json');
-                const data = await res.json();
-                userIP = data.ip;
-                document.getElementById('ipDisplay').textContent = userIP;
-                checkExistingKey();
-            } catch(e) {
-                document.getElementById('ipDisplay').textContent = 'غير متاح';
-            }
-        }
-        
-        // فحص مفتاح موجود
-        function checkExistingKey() {
-            const keyRef = ref(database, `keys/${userIP.replace(/\./g, '_')}`);
-            onValue(keyRef, (snap) => {
-                const data = snap.val();
-                const el = document.getElementById('keyStatusDisplay');
-                if (data && data.key && data.expiryTime > Date.now()) {
-                    const h = Math.floor((data.expiryTime - Date.now()) / 3600000);
-                    el.textContent = `نشط (${h}h متبقي)`;
-                    el.style.color = '#4CAF50';
-                } else {
-                    el.textContent = 'لا يوجد';
-                    el.style.color = '#8A2BE2';
-                }
-            });
-        }
-        
-        // انشاء رابط سري
-        window.generateLink = async function() {
-            if (!userIP) {
-                alert('جاري تحميل IP...');
-                return;
-            }
-            
-            const btn = document.getElementById('generateBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loader"></span> جاري الانشاء...';
-            
-            const code = generateCode();
-            const sanitizedIP = userIP.replace(/\./g, '_');
-            
-            // حفظ في Firebase
-            const linkRef = ref(database, `links/${sanitizedIP}`);
-            await set(linkRef, {
-                ip: userIP,
-                code: code,
-                createdAt: Date.now(),
-                used: false,
-                keyGenerated: false,
-                generatedKey: null,
-                keyExpiry: null
-            });
-            
-            const link = `${window.location.origin}${window.location.pathname}?code=${code}&ip=${sanitizedIP}`;
-            
-            document.getElementById('linkDisplay').textContent = link;
-            document.getElementById('linkBox').classList.add('show');
-            
-            await navigator.clipboard.writeText(link);
-            
-            btn.disabled = false;
-            btn.innerHTML = '🔗 انشاء رابط مفتاح سري';
-            
-            showToast('✅ تم نسخ الرابط!');
-        };
-        
-        // التحقق من رابط المهمة
-        async function validateTaskLink() {
-            const statusEl = document.getElementById('linkCheckStatus');
-            
-            if (!taskCode || !taskIP) {
-                showTaskError('❌ رابط غير صالح');
-                return false;
-            }
-            
-            try {
-                const linkRef = ref(database, `links/${taskIP}`);
-                const snap = await get(linkRef);
-                const data = snap.val();
-                
-                if (!data) {
-                    showTaskError('❌ الرابط غير موجود');
-                    statusEl.textContent = '❌ غير موجود';
-                    return false;
-                }
-                
-                if (data.code !== taskCode) {
-                    showTaskError('❌ كود غير صحيح');
-                    statusEl.textContent = '❌ كود خاطئ';
-                    return false;
-                }
-                
-                if (data.keyGenerated && data.generatedKey && data.keyExpiry > Date.now()) {
-                    // عرض المفتاح الموجود
-                    statusEl.textContent = '✅ المفتاح جاهز';
-                    statusEl.style.color = '#4CAF50';
-                    document.getElementById('keyResultText').textContent = data.generatedKey;
-                    document.getElementById('keyResultBox').classList.add('show');
-                    document.getElementById('taskBox').classList.remove('show');
-                    navigator.clipboard.writeText(data.generatedKey);
-                    return false;
-                }
-                
-                if (data.used && !data.keyGenerated) {
-                    showTaskError('❌ الرابط مستخدم');
-                    statusEl.textContent = '❌ مستخدم';
-                    return false;
-                }
-                
-                // رابط صالح
-                statusEl.textContent = '✅ صالح';
-                statusEl.style.color = '#4CAF50';
-                document.getElementById('taskBox').classList.add('show');
-                return true;
-                
-            } catch(e) {
-                showTaskError('❌ فشل الاتصال');
-                return false;
-            }
-        }
-        
-        function showTaskError(msg) {
-            document.getElementById('errorText').textContent = msg;
-            document.getElementById('errorBox').classList.add('show');
-            document.getElementById('taskBox').classList.remove('show');
-            document.getElementById('linkCheckStatus').textContent = '❌ خطأ';
-        }
-        
-        // تحديث تقدم المهمة
-        window.updateTaskProgress = function() {
-            const cb = document.getElementById('confirmCheckbox');
-            const prog = document.getElementById('taskProgress');
-            const btn = document.getElementById('completeTaskBtn');
-            
-            if (cb.checked) {
-                prog.style.width = '100%';
-                btn.disabled = false;
-            } else {
-                prog.style.width = '0%';
-                btn.disabled = true;
-            }
-        };
-        
-        // اكمال المهمة
-        window.finishTask = async function() {
-            const btn = document.getElementById('completeTaskBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loader"></span> جاري الانشاء...';
-            
-            const key = 'SZ-' + generateCode().substring(0, 24);
-            const now = Date.now();
-            const expiry = now + (24 * 60 * 60 * 1000);
-            
-            // IP الحقيقي
-            let realIP = taskIP.replace(/_/g, '.');
-            try {
-                const res = await fetch('https://api.ipify.org?format=json');
-                const d = await res.json();
-                realIP = d.ip;
-            } catch(e) {}
-            
-            const sanitizedIP = realIP.replace(/\./g, '_');
-            
-            // تحديث الرابط
-            const linkRef = ref(database, `links/${taskIP}`);
-            await set(linkRef, {
-                ip: realIP,
-                code: taskCode,
-                createdAt: now,
-                used: true,
-                keyGenerated: true,
-                generatedKey: key,
-                keyExpiry: expiry
-            });
-            
-            // حفظ المفتاح
-            const keyRef = ref(database, `keys/${sanitizedIP}`);
-            await set(keyRef, {
-                key: key,
-                createdAt: now,
-                expiryTime: expiry,
-                ip: realIP
-            });
-            
-            // عرض المفتاح
-            document.getElementById('keyResultText').textContent = key;
-            document.getElementById('keyResultBox').classList.add('show');
-            document.getElementById('taskBox').classList.remove('show');
-            
-            await navigator.clipboard.writeText(key);
-            showToast('✅ تم نسخ المفتاح!');
-        };
-        
-        function generateCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let code = '';
-            for (let i = 0; i < 32; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return code;
-        }
-        
-        function showToast(msg) {
-            const t = document.createElement('div');
-            t.className = 'toast';
-            t.textContent = msg;
-            document.body.appendChild(t);
-            setTimeout(() => t.remove(), 2000);
-        }
-        
-        // بدء التشغيل
-        if (taskCode && taskIP) {
-            validateTaskLink();
-        } else {
-            getIP();
-        }
-    </script>
+    <!-- النص الرئيسي -->
+    <h1 class="main-title">
+        مرحبًا بك في <br><span>أفضل موقع هاكات وسكربتات عربي</span>
+    </h1>
+
+    <!-- النص الوصفي -->
+    <div class="description">
+        <strong>✦</strong> إضغط الزر إدناه لدخول بوت الهاكات والسكربتات <strong>✦</strong>
+    </div>
+
+    <!-- زر الدخول -->
+    <a href="https://t.me/SK500SZBOT" 
+       class="btn-gold" 
+       target="_blank" 
+       rel="noopener noreferrer">
+        دخول
+    </a>
+
+    <!-- زخارف -->
+    <div class="ornament">
+        <span></span>
+        <span style="width: 20px;"></span>
+        <span></span>
+    </div>
+
+    <!-- تذييل أنيق -->
+    <div class="footer-note">
+        ⚡ SECURE • PREMIUM • ARABIC ⚡
+    </div>
+</div>
+
 </body>
 </html>
