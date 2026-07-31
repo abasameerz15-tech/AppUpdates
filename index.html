@@ -378,7 +378,7 @@
         <div class="text-center mt-10">
             <span class="link" id="linkTerms">📄 قراءة شروط الخدمة</span>
         </div>
-        <div class="footer-note mt-20">* سيتم ربط المفتاح بيوزرك في روبلوكس بشكل دائم.</div>
+        <div class="footer-note mt-20">* سيتم ربط المفتاح بجهازك وشبكتك بشكل دائم.</div>
     </div>
 
     <!-- ========== PAGE 2: VERIFICATION ========== -->
@@ -441,7 +441,7 @@
         <h3>📜 شروط الخدمة</h3>
         <p>
             <strong>1.</strong> لا يمكنك إنشاء مفتاح بدلاً عن شخص آخر.<br><br>
-            <strong>2.</strong> يتم ربط المفتاح بيوزرك في روبلوكس بشكل دائم.<br><br>
+            <strong>2.</strong> يتم ربط المفتاح بـ HWID الخاص بجهازك و IP شبكتك بشكل دائم.<br><br>
             <strong>3.</strong> كل مفتاح صالح لمدة <strong>24 ساعة</strong> فقط.<br><br>
             <strong>4.</strong> لا يمكنك إنشاء مفتاح جديد قبل انتهاء الـ 24 ساعة.<br><br>
             <strong>5.</strong> حتى لو حذفت بيانات المتصفح، سيظل جهازك محظوراً حتى انتهاء الوقت.<br><br>
@@ -632,6 +632,7 @@
                 showLockedPage(data.expiresAt);
                 return;
             } else {
+                // Clean up expired key
                 await db.ref('keys/' + data.key).remove();
                 await deviceRef.remove();
             }
@@ -663,6 +664,7 @@
                 clearInterval(lockTimerInterval);
                 timerDisplay.textContent = '⏱️ انتهت الصلاحية! يمكنك إنشاء مفتاح جديد.';
                 
+                // Auto cleanup
                 const deviceRef = db.ref('devices/' + hwid);
                 deviceRef.once('value').then(snap => {
                     const data = snap.val();
@@ -730,7 +732,6 @@
             return;
         }
         
-        // Check if username is valid (at least 3 characters, only letters/numbers/underscore)
         if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
             usernameError.textContent = '❌ يوزر غير صالح! يجب أن يكون 3-20 حرف (أحرف/أرقام/_ فقط)';
             usernameError.classList.remove('hidden');
@@ -741,28 +742,7 @@
         btnConfirmUsername.disabled = true;
         btnConfirmUsername.textContent = '⏳ جاري الإنشاء...';
         
-        // Check if this username already has an active key
-        const userKeyRef = db.ref('userKeys/' + username.toLowerCase());
-        const snap = await userKeyRef.once('value');
-        const existing = snap.val();
-        
-        if (existing && existing.key && existing.expiresAt) {
-            const now = Date.now();
-            if (now < existing.expiresAt) {
-                // This username already has an active key
-                usernameError.textContent = '❌ هذا اليوزر لديه مفتاح نشط بالفعل!';
-                usernameError.classList.remove('hidden');
-                btnConfirmUsername.disabled = false;
-                btnConfirmUsername.textContent = '✅ تأكيد اليوزر وإنشاء المفتاح';
-                return;
-            } else {
-                // Expired key - clean up
-                await db.ref('keys/' + existing.key).remove();
-                await userKeyRef.remove();
-            }
-        }
-        
-        // Also check if this HWID has an active key
+        // Check if this HWID already has an active key
         const deviceRef = db.ref('devices/' + hwid);
         const deviceSnap = await deviceRef.once('value');
         const deviceData = deviceSnap.val();
@@ -772,6 +752,25 @@
             btnConfirmUsername.disabled = false;
             btnConfirmUsername.textContent = '✅ تأكيد اليوزر وإنشاء المفتاح';
             return;
+        }
+        
+        // Check if this username already has an active key
+        const userKeyRef = db.ref('userKeys/' + username.toLowerCase());
+        const snap = await userKeyRef.once('value');
+        const existing = snap.val();
+        
+        if (existing && existing.key && existing.expiresAt) {
+            const now = Date.now();
+            if (now < existing.expiresAt) {
+                usernameError.textContent = '❌ هذا اليوزر لديه مفتاح نشط بالفعل!';
+                usernameError.classList.remove('hidden');
+                btnConfirmUsername.disabled = false;
+                btnConfirmUsername.textContent = '✅ تأكيد اليوزر وإنشاء المفتاح';
+                return;
+            } else {
+                await db.ref('keys/' + existing.key).remove();
+                await userKeyRef.remove();
+            }
         }
         
         // Generate unique key
@@ -790,7 +789,7 @@
         const now = Date.now();
         const expiresAt = now + 24 * 60 * 60 * 1000;
 
-        // Store key with username
+        // Store key with username and HWID
         const keyData = {
             username: username.toLowerCase(),
             hwid: hwid,
@@ -901,7 +900,7 @@
                 showLockedPage(data.expiresAt);
                 return;
             } else {
-                // Also clean up userKeys entry
+                // Clean up expired
                 if (data.username) {
                     await db.ref('userKeys/' + data.username).remove();
                 }
