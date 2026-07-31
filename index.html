@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إنشاء المفاتيح</title>
+    <title>نظام إنشاء المفاتيح المتقدم 🔐</title>
     <!-- Firebase App (compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -15,82 +15,100 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         body {
-            background: linear-gradient(145deg, #0e0e0e, #1a1a1a);
+            background: linear-gradient(145deg, #0b0b0b, #181818);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            color: #eee;
         }
         .container {
-            background: #1e1e1e;
-            border-radius: 24px;
+            background: #1a1a1a;
+            border-radius: 28px;
             padding: 40px 30px;
             max-width: 500px;
             width: 100%;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.7);
-            border: 1px solid #2a2a2a;
-            transition: all 0.3s;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            border: 1px solid #2e2e2e;
+            transition: 0.3s;
+            backdrop-filter: blur(2px);
         }
         .page {
             display: none;
             flex-direction: column;
-            gap: 20px;
+            gap: 22px;
+            animation: fadeSlide 0.3s ease;
         }
         .page.active {
             display: flex;
         }
+        @keyframes fadeSlide {
+            0% { opacity: 0; transform: translateY(12px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
         h2 {
-            color: #f0f0f0;
-            font-size: 22px;
+            color: #f5f5f5;
+            font-size: 24px;
             text-align: center;
-            margin-bottom: 10px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         .sub {
-            color: #aaa;
+            color: #a0a0a0;
             font-size: 14px;
             text-align: center;
-            margin-bottom: 10px;
+            margin-top: -10px;
+            margin-bottom: 6px;
+            line-height: 1.6;
+        }
+        .sub strong {
+            color: #ddd;
         }
         .checkbox-group {
             display: flex;
             flex-direction: column;
             gap: 14px;
-            margin: 10px 0;
+            margin: 6px 0 4px;
         }
         .check-item {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             cursor: pointer;
-            padding: 10px 14px;
-            background: #2a2a2a;
-            border-radius: 12px;
-            transition: 0.2s;
+            padding: 12px 16px;
+            background: #252525;
+            border-radius: 14px;
+            transition: 0.25s;
             border: 1px solid #333;
         }
         .check-item:hover {
-            background: #323232;
+            background: #2d2d2d;
+            border-color: #444;
         }
         .check-box {
-            width: 28px;
-            height: 28px;
-            background: #3a3a3a;
-            border-radius: 6px;
+            width: 30px;
+            height: 30px;
+            background: #333;
+            border-radius: 8px;
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 18px;
+            font-weight: 700;
             color: #fff;
-            transition: 0.2s;
+            transition: 0.25s;
             flex-shrink: 0;
             border: 1px solid #555;
         }
         .check-box.active {
             background: #1a73e8;
             border-color: #1a73e8;
+            box-shadow: 0 0 12px rgba(26, 115, 232, 0.3);
         }
         .check-text {
             color: #ddd;
@@ -98,28 +116,32 @@
             font-weight: 500;
         }
         .btn {
-            padding: 14px 20px;
+            padding: 15px 20px;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: 0.25s;
             text-align: center;
+            letter-spacing: 0.3px;
         }
         .btn-primary {
             background: #1a73e8;
             color: white;
+            box-shadow: 0 4px 14px rgba(26, 115, 232, 0.25);
         }
         .btn-primary:hover {
             background: #1557b0;
             transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.35);
         }
         .btn-primary:disabled {
             background: #3a3a3a;
             color: #777;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
         .btn-secondary {
             background: #2a2a2a;
@@ -128,13 +150,23 @@
         }
         .btn-secondary:hover {
             background: #3a3a3a;
+            border-color: #666;
         }
         .btn-success {
             background: #0f9d58;
             color: white;
+            box-shadow: 0 4px 14px rgba(15, 157, 88, 0.25);
         }
         .btn-success:hover {
             background: #0b7a45;
+            transform: scale(1.02);
+        }
+        .btn-danger {
+            background: #d93025;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #b3261e;
         }
         .link {
             color: #8ab4f8;
@@ -150,50 +182,56 @@
         .mt-20 { margin-top: 20px; }
         .text-center { text-align: center; }
         .math-box {
-            background: #252525;
-            border-radius: 16px;
-            padding: 25px;
+            background: #222;
+            border-radius: 18px;
+            padding: 28px 20px;
             text-align: center;
             border: 1px solid #3a3a3a;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
         }
         .math-equation {
-            font-size: 28px;
+            font-size: 32px;
             color: #fff;
             font-weight: 700;
             letter-spacing: 2px;
             direction: ltr;
+            font-family: 'Courier New', monospace;
         }
         .math-input {
             width: 100%;
-            padding: 14px;
-            border-radius: 10px;
+            padding: 16px;
+            border-radius: 12px;
             border: 1px solid #444;
             background: #1a1a1a;
             color: #fff;
-            font-size: 20px;
+            font-size: 22px;
             text-align: center;
-            margin-top: 15px;
+            margin-top: 18px;
             outline: none;
-            transition: 0.2s;
+            transition: 0.25s;
+            font-weight: 600;
         }
         .math-input:focus {
             border-color: #1a73e8;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
         }
         .key-display {
-            background: #252525;
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid #3a3a3a;
+            background: #1e1e1e;
+            border-radius: 18px;
+            padding: 24px 20px;
+            border: 2px solid #2a5a3a;
             user-select: none;
             -webkit-user-select: none;
             font-family: 'Courier New', monospace;
-            font-size: 22px;
+            font-size: 24px;
             color: #0f9d58;
             text-align: center;
             letter-spacing: 2px;
-            font-weight: bold;
+            font-weight: 700;
             word-break: break-all;
             direction: ltr;
+            box-shadow: 0 0 20px rgba(15, 157, 88, 0.05);
+            transition: 0.3s;
         }
         .key-display::selection {
             background: transparent;
@@ -205,7 +243,7 @@
             color: #888;
             font-size: 13px;
             text-align: center;
-            margin-top: 10px;
+            margin-top: 6px;
         }
         .modal {
             display: none;
@@ -214,61 +252,100 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0, 0, 0, 0.8);
             justify-content: center;
             align-items: center;
             z-index: 999;
             padding: 20px;
+            backdrop-filter: blur(4px);
         }
         .modal.active {
             display: flex;
         }
         .modal-content {
             background: #1e1e1e;
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 24px;
+            padding: 35px 30px;
             max-width: 500px;
             width: 100%;
             border: 1px solid #333;
             max-height: 80vh;
             overflow-y: auto;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
         }
         .modal-content h3 {
             color: #fff;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
             text-align: center;
+            font-size: 22px;
         }
         .modal-content p {
             color: #ccc;
-            line-height: 1.8;
+            line-height: 1.9;
             font-size: 15px;
         }
         .modal-close {
-            margin-top: 20px;
+            margin-top: 24px;
             width: 100%;
         }
         .error-msg {
             color: #f28b82;
             font-size: 14px;
             text-align: center;
-            margin-top: 5px;
+            margin-top: 8px;
+            font-weight: 500;
         }
         .success-msg {
             color: #81c995;
             font-size: 14px;
             text-align: center;
-            margin-top: 5px;
+            margin-top: 8px;
+            font-weight: 500;
         }
         .hidden {
-            display: none;
+            display: none !important;
         }
         .flex-center {
             display: flex;
             justify-content: center;
         }
+        .badge {
+            display: inline-block;
+            background: #1a73e8;
+            color: #fff;
+            font-size: 12px;
+            padding: 3px 14px;
+            border-radius: 30px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .info-box {
+            background: #222;
+            border-radius: 14px;
+            padding: 16px 18px;
+            border: 1px solid #333;
+            font-size: 14px;
+            color: #bbb;
+            line-height: 1.7;
+        }
+        .info-box strong {
+            color: #eee;
+        }
+        .timer-box {
+            background: #1a1a1a;
+            border-radius: 14px;
+            padding: 14px;
+            border: 1px solid #333;
+            text-align: center;
+            color: #f5b342;
+            font-weight: 600;
+            font-size: 18px;
+        }
         @media (max-width: 480px) {
-            .container { padding: 25px 18px; }
-            .key-display { font-size: 18px; }
+            .container { padding: 28px 18px; }
+            .key-display { font-size: 19px; padding: 18px; }
+            .math-equation { font-size: 26px; }
+            .check-item { padding: 10px 14px; }
         }
     </style>
 </head>
@@ -278,45 +355,60 @@
     <!-- ========== PAGE 1: TERMS ========== -->
     <div class="page active" id="pageTerms">
         <h2>🔐 إنشاء مفتاح جديد</h2>
-        <p class="sub">يرجى الموافقة على الشروط لإنشاء مفتاح</p>
+        <p class="sub">يرجى الموافقة على الشروط لإنشاء مفتاح <strong>صالح لمدة 24 ساعة</strong></p>
         <div class="checkbox-group">
             <div class="check-item" id="checkTerms">
                 <div class="check-box" id="boxTerms">✓</div>
-                <span class="check-text">أوافق على شروط الخدمة</span>
+                <span class="check-text">أوافق على <strong>شروط الخدمة</strong></span>
             </div>
             <div class="check-item" id="checkVerify">
                 <div class="check-box" id="boxVerify">✓</div>
-                <span class="check-text">أوافق على إكمال التحقق</span>
+                <span class="check-text">أوافق على إكمال <strong>التحقق البشري</strong></span>
             </div>
         </div>
-        <button class="btn btn-primary" id="btnCreateKey" disabled>إنشاء مفتاح</button>
+        <button class="btn btn-primary" id="btnCreateKey" disabled>🚀 إنشاء مفتاح</button>
         <div class="text-center mt-10">
             <span class="link" id="linkTerms">📄 قراءة شروط الخدمة</span>
         </div>
-        <div class="footer-note mt-20">* سيتم ربط المفتاح بجهازك وشبكتك.</div>
+        <div class="footer-note mt-20">* سيتم ربط المفتاح بجهازك وشبكتك بشكل آمن.</div>
     </div>
 
     <!-- ========== PAGE 2: VERIFICATION ========== -->
     <div class="page" id="pageVerify">
-        <h2>🧠 التحقق من أنك إنسان</h2>
-        <p class="sub">الرجاء إكمال التحقق قبل الإستمرار</p>
+        <h2>🧠 التحقق البشري</h2>
+        <p class="sub">الرجاء حل المعادلة للتأكد من أنك إنسان</p>
         <div class="math-box">
             <div class="math-equation" id="mathEquation">12 + 7 = ?</div>
             <input type="number" class="math-input" id="mathAnswer" placeholder="أدخل الناتج" autofocus>
-            <button class="btn btn-primary mt-10" id="btnVerify">تأكيد الجواب</button>
+            <button class="btn btn-primary mt-10" id="btnVerify">✅ تأكيد الجواب</button>
             <div id="verifyError" class="error-msg hidden">❌ إجابة خاطئة، حاول مجدداً</div>
+        </div>
+        <div class="text-center">
+            <span class="link" id="linkBackTerms">↩️ العودة للشروط</span>
         </div>
     </div>
 
     <!-- ========== PAGE 3: KEY RESULT ========== -->
     <div class="page" id="pageKey">
         <h2>🎉 مفتاحك السري</h2>
-        <p class="sub">هذا هو مفتاحك السري لا تشاركه لأحد</p>
+        <p class="sub">هذا هو مفتاحك السري <strong>لا تشاركه مع أي شخص</strong></p>
         <div class="key-display" id="keyDisplay">FREE_abcdef123456</div>
         <button class="btn btn-success" id="btnCopyKey">📋 نسخ المفتاح</button>
-        <div class="footer-note">⏳ صالح لمدة 24 ساعة من الآن</div>
         <div id="copyMessage" class="success-msg hidden">✅ تم النسخ!</div>
+        <div class="footer-note">⏳ صالح لمدة 24 ساعة من الآن</div>
         <button class="btn btn-secondary mt-20" id="btnBackHome">🏠 العودة للصفحة الرئيسية</button>
+    </div>
+
+    <!-- ========== PAGE 4: LOCKED (cooldown) ========== -->
+    <div class="page" id="pageLocked">
+        <h2>⏳ قيد الانتظار</h2>
+        <p class="sub">لقد قمت بإنشاء مفتاح حديثاً، يرجى الانتظار حتى انتهاء صلاحيته</p>
+        <div class="timer-box" id="timerDisplay">⏱️ 23:59:59</div>
+        <div class="info-box">
+            <strong>📌 ملاحظة:</strong> لا يمكنك إنشاء مفتاح جديد إلا بعد انتهاء صلاحية المفتاح الحالي (24 ساعة من إنشائه).<br>
+            <span style="color:#aaa;">سيتم حذف المفتاح تلقائياً من الخادم بعد انتهاء صلاحيته.</span>
+        </div>
+        <button class="btn btn-secondary mt-20" id="btnLockedBack">🏠 العودة للرئيسية</button>
     </div>
 </div>
 
@@ -325,11 +417,14 @@
     <div class="modal-content">
         <h3>📜 شروط الخدمة</h3>
         <p>
-            <strong>1.</strong> لن يمكنك إنشاء مفتاح بدلاً عن شخص آخر، يجب الشخص يحصل عليه بنفسه أو سيتم حظرك من الموقع.<br><br>
-            <strong>2.</strong> يتم إنشاء المفاتيح عن طريق IP هاتفك وشبكتك و HWID الخاص بجهازك لكي لا تستطيع إنشاء مفتاح لشخص آخر!!<br><br>
+            <strong>1.</strong> لن يمكنك إنشاء مفتاح بدلاً عن شخص آخر، يجب أن يحصل الشخص على مفتاحه بنفسه، وإلا سيتم حظرك من الموقع.<br><br>
+            <strong>2.</strong> يتم إنشاء المفاتيح باستخدام معرف جهازك (Device ID) وعنوان IP الخاص بشبكتك، لمنع إنشاء مفاتيح لحسابات أخرى.<br><br>
+            <strong>3.</strong> كل مفتاح صالح لمدة <strong>24 ساعة</strong> فقط، بعدها ينتهي تلقائياً ولا يمكن استخدامه.<br><br>
+            <strong>4.</strong> لا يمكنك إنشاء مفتاح جديد قبل انتهاء صلاحية المفتاح السابق (يجب الانتظار 24 ساعة).<br><br>
+            <strong>5.</strong> أي محاولة لتجاوز النظام قد تؤدي إلى حظر جهازك نهائياً.<br><br>
             شكراً لك على قراءة شروط الخدمة والالتزام بها. 🤍
         </p>
-        <button class="btn btn-primary modal-close" id="closeModal">فهمت</button>
+        <button class="btn btn-primary modal-close" id="closeModal">✅ فهمت ووافقت</button>
     </div>
 </div>
 
@@ -342,28 +437,24 @@
     const db = firebase.database();
 
     // ------------------------- UTILITIES -------------------------
-    // Generate random string: 6 digits + 6 lowercase letters
     function generateKeySuffix() {
-        const digits = '0123456789';
-        const letters = 'abcdefghijklmnopqrstuvwxyz';
+        const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         let result = '';
-        for (let i = 0; i < 6; i++) result += digits[Math.floor(Math.random() * digits.length)];
-        for (let i = 0; i < 6; i++) result += letters[Math.floor(Math.random() * letters.length)];
-        // shuffle to mix letters and digits
-        return result.split('').sort(() => Math.random() - 0.5).join('');
+        for (let i = 0; i < 12; i++) {
+            result += chars[Math.floor(Math.random() * chars.length)];
+        }
+        return result;
     }
 
-    // Get device ID from localStorage
     function getDeviceID() {
         let id = localStorage.getItem('deviceID');
         if (!id) {
-            id = 'dev_' + Math.random().toString(36).substr(2, 16) + '_' + Date.now().toString(36);
+            id = 'dev_' + Math.random().toString(36).substr(2, 14) + '_' + Date.now().toString(36);
             localStorage.setItem('deviceID', id);
         }
         return id;
     }
 
-    // Get IP via api.ipify.org
     function getIP() {
         return new Promise((resolve) => {
             fetch('https://api.ipify.org?format=json')
@@ -373,13 +464,12 @@
         });
     }
 
-    // Show page
     function showPage(pageId) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
+        const page = document.getElementById(pageId);
+        if (page) page.classList.add('active');
     }
 
-    // Math equation generator
     function generateMathEquation() {
         const a = Math.floor(Math.random() * 20) + 1;
         const b = Math.floor(Math.random() * 20) + 1;
@@ -387,11 +477,18 @@
         let result;
         if (op === '+') result = a + b;
         else {
-            // ensure positive
-            if (a < b) return generateMathEquation(); // retry
+            if (a < b) return generateMathEquation();
             result = a - b;
         }
         return { text: `${a} ${op} ${b} = ?`, answer: result };
+    }
+
+    function formatTime(ms) {
+        const totalSec = Math.floor(ms / 1000);
+        const h = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+        const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+        const s = String(totalSec % 60).padStart(2, '0');
+        return `⏱️ ${h}:${m}:${s}`;
     }
 
     // ------------------------- STATE -------------------------
@@ -401,6 +498,7 @@
     let verifyChecked = false;
     const deviceID = getDeviceID();
     let userIP = '';
+    let lockTimerInterval = null;
 
     // ------------------------- DOM REFS -------------------------
     const checkTerms = document.getElementById('checkTerms');
@@ -409,6 +507,7 @@
     const boxVerify = document.getElementById('boxVerify');
     const btnCreate = document.getElementById('btnCreateKey');
     const linkTerms = document.getElementById('linkTerms');
+    const linkBackTerms = document.getElementById('linkBackTerms');
     const termsModal = document.getElementById('termsModal');
     const closeModal = document.getElementById('closeModal');
 
@@ -421,6 +520,8 @@
     const btnCopy = document.getElementById('btnCopyKey');
     const copyMessage = document.getElementById('copyMessage');
     const btnBackHome = document.getElementById('btnBackHome');
+    const btnLockedBack = document.getElementById('btnLockedBack');
+    const timerDisplay = document.getElementById('timerDisplay');
 
     // ------------------------- CHECKBOX TOGGLES -------------------------
     checkTerms.addEventListener('click', function() {
@@ -439,12 +540,9 @@
     }
 
     // ------------------------- TERMS MODAL -------------------------
-    linkTerms.addEventListener('click', () => {
-        termsModal.classList.add('active');
-    });
-    closeModal.addEventListener('click', () => {
-        termsModal.classList.remove('active');
-    });
+    linkTerms.addEventListener('click', () => termsModal.classList.add('active'));
+    linkBackTerms.addEventListener('click', () => showPage('pageTerms'));
+    closeModal.addEventListener('click', () => termsModal.classList.remove('active'));
     termsModal.addEventListener('click', (e) => {
         if (e.target === termsModal) termsModal.classList.remove('active');
     });
@@ -452,16 +550,59 @@
     // ------------------------- CREATE KEY BUTTON -------------------------
     btnCreate.addEventListener('click', async function() {
         if (btnCreate.disabled) return;
-        // Move to verification page
+        // Check if device has an active key (not expired)
+        const deviceRef = db.ref('devices/' + deviceID);
+        const snapshot = await deviceRef.once('value');
+        const data = snapshot.val();
+        if (data && data.key && data.expiresAt) {
+            const now = Date.now();
+            if (now < data.expiresAt) {
+                // Still active — show locked page with timer
+                showLockedPage(data.expiresAt);
+                return;
+            } else {
+                // Expired — delete it
+                await db.ref('keys/' + data.key).remove();
+                await deviceRef.remove();
+            }
+        }
+
+        // Move to verification
         showPage('pageVerify');
-        // Generate new math equation
         currentMath = generateMathEquation();
         mathEquation.textContent = currentMath.text;
         mathAnswer.value = '';
         verifyError.classList.add('hidden');
         mathAnswer.focus();
-        // fetch IP (async)
         userIP = await getIP();
+    });
+
+    // ------------------------- LOCKED PAGE WITH TIMER -------------------------
+    function showLockedPage(expiresAt) {
+        showPage('pageLocked');
+        if (lockTimerInterval) clearInterval(lockTimerInterval);
+        const updateTimer = () => {
+            const now = Date.now();
+            const remaining = Math.max(0, expiresAt - now);
+            timerDisplay.textContent = formatTime(remaining);
+            if (remaining <= 0) {
+                clearInterval(lockTimerInterval);
+                timerDisplay.textContent = '⏱️ انتهت الصلاحية! يمكنك إنشاء مفتاح جديد.';
+                // Optionally auto-redirect to terms after a moment
+                setTimeout(() => {
+                    if (document.getElementById('pageLocked').classList.contains('active')) {
+                        showPage('pageTerms');
+                    }
+                }, 3000);
+            }
+        };
+        updateTimer();
+        lockTimerInterval = setInterval(updateTimer, 1000);
+    }
+
+    btnLockedBack.addEventListener('click', function() {
+        if (lockTimerInterval) clearInterval(lockTimerInterval);
+        showPage('pageTerms');
     });
 
     // ------------------------- VERIFICATION -------------------------
@@ -473,10 +614,8 @@
             return;
         }
         if (userAns === currentMath.answer) {
-            // Correct! Generate key and move to final page
             generateAndShowKey();
         } else {
-            // Wrong: new equation
             verifyError.textContent = '❌ إجابة خاطئة، حاول مجدداً';
             verifyError.classList.remove('hidden');
             currentMath = generateMathEquation();
@@ -492,18 +631,21 @@
 
     // ------------------------- GENERATE & STORE KEY -------------------------
     async function generateAndShowKey() {
-        // 1. Check if device already has an active key (within 24h) and delete it
+        // Double-check no active key exists
         const deviceRef = db.ref('devices/' + deviceID);
-        const snapshot = await deviceRef.once('value');
-        const existing = snapshot.val();
+        const snap = await deviceRef.once('value');
+        const existing = snap.val();
+        if (existing && existing.key && existing.expiresAt && Date.now() < existing.expiresAt) {
+            // Still active — show lock
+            showLockedPage(existing.expiresAt);
+            return;
+        }
         if (existing && existing.key) {
-            // Delete old key from keys node
             await db.ref('keys/' + existing.key).remove();
-            // Delete device entry
             await deviceRef.remove();
         }
 
-        // 2. Generate unique key
+        // Generate unique key
         let newKey = '';
         let unique = false;
         while (!unique) {
@@ -516,11 +658,9 @@
             }
         }
 
-        // 3. Create expiry (24h from now)
         const now = Date.now();
         const expiresAt = now + 24 * 60 * 60 * 1000;
 
-        // 4. Prepare data
         const keyData = {
             deviceID: deviceID,
             ip: userIP || 'unknown',
@@ -533,13 +673,11 @@
             expiresAt: expiresAt
         };
 
-        // 5. Store in Firebase (atomic updates)
         const updates = {};
         updates['keys/' + newKey] = keyData;
         updates['devices/' + deviceID] = deviceData;
         await db.ref().update(updates);
 
-        // 6. Display the key
         generatedKey = newKey;
         keyDisplay.textContent = newKey;
         showPage('pageKey');
@@ -549,23 +687,18 @@
     // ------------------------- COPY KEY -------------------------
     btnCopy.addEventListener('click', function() {
         if (!generatedKey) return;
-        // Use Clipboard API
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(generatedKey).then(() => {
                 copyMessage.textContent = '✅ تم نسخ المفتاح!';
                 copyMessage.classList.remove('hidden');
                 setTimeout(() => copyMessage.classList.add('hidden'), 2500);
-            }).catch(() => {
-                // fallback
-                copyViaFallback();
-            });
+            }).catch(() => copyViaFallback());
         } else {
             copyViaFallback();
         }
     });
 
     function copyViaFallback() {
-        // Create temporary textarea
         const textarea = document.createElement('textarea');
         textarea.value = generatedKey;
         textarea.style.position = 'fixed';
@@ -586,29 +719,47 @@
 
     // ------------------------- BACK HOME -------------------------
     btnBackHome.addEventListener('click', function() {
+        if (lockTimerInterval) clearInterval(lockTimerInterval);
         showPage('pageTerms');
-        // Reset checkboxes? We keep them checked if they were.
-        // But we can reset them to unchecked for a fresh start?
-        // The user might want to create another key. We'll reset.
         termsChecked = false;
         verifyChecked = false;
         boxTerms.classList.remove('active');
         boxVerify.classList.remove('active');
         updateCreateButton();
         generatedKey = null;
-        // Reset math page too
         verifyError.classList.add('hidden');
     });
 
-    // ------------------------- INITIAL -------------------------
-    // Show terms page by default
-    showPage('pageTerms');
+    // ------------------------- INITIAL CHECK ON LOAD -------------------------
+    async function checkDeviceOnLoad() {
+        const deviceRef = db.ref('devices/' + deviceID);
+        const snap = await deviceRef.once('value');
+        const data = snap.val();
+        if (data && data.key && data.expiresAt) {
+            const now = Date.now();
+            if (now < data.expiresAt) {
+                // Active key found — show locked page
+                showLockedPage(data.expiresAt);
+                return;
+            } else {
+                // Expired — clean up
+                await db.ref('keys/' + data.key).remove();
+                await deviceRef.remove();
+            }
+        }
+        // No active key — show terms
+        showPage('pageTerms');
+    }
+
     // Pre-fetch IP
     getIP().then(ip => userIP = ip);
 
-    // Disable copy of key by select
+    // Disable copy of key display
     keyDisplay.addEventListener('selectstart', (e) => e.preventDefault());
     keyDisplay.addEventListener('copy', (e) => e.preventDefault());
+
+    // Run initial check
+    checkDeviceOnLoad();
 </script>
 
 </body>
