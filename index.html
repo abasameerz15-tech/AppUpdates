@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام إنشاء المفاتيح المتقدم 🔐</title>
+    <!-- Firebase App (compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
@@ -153,6 +154,13 @@
         .btn-success:hover {
             background: #0b7a45;
             transform: scale(1.02);
+        }
+        .btn-danger {
+            background: #d93025;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #b3261e;
         }
         .link {
             color: #8ab4f8;
@@ -305,6 +313,42 @@
             font-weight: 600;
             font-size: 18px;
         }
+        .username-input {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #444;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 18px;
+            text-align: center;
+            outline: none;
+            transition: 0.25s;
+            font-weight: 600;
+            letter-spacing: 1px;
+            direction: ltr;
+        }
+        .username-input:focus {
+            border-color: #1a73e8;
+        }
+        .username-input::placeholder {
+            color: #666;
+            font-weight: 400;
+            font-size: 14px;
+            direction: rtl;
+        }
+        .warning-text {
+            color: #f5b342;
+            font-size: 13px;
+            text-align: center;
+            background: #2a1f0a;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid #4a3a1a;
+        }
+        .warning-text strong {
+            color: #ffcc66;
+        }
         @media (max-width: 480px) {
             .container { padding: 28px 18px; }
             .key-display { font-size: 19px; padding: 18px; }
@@ -316,7 +360,7 @@
 <body>
 
 <div class="container" id="appContainer">
-    <!-- PAGE 1: TERMS -->
+    <!-- ========== PAGE 1: TERMS ========== -->
     <div class="page active" id="pageTerms">
         <h2>🔐 إنشاء مفتاح جديد</h2>
         <p class="sub">يرجى الموافقة على الشروط لإنشاء مفتاح <strong>صالح لمدة 24 ساعة</strong></p>
@@ -334,10 +378,10 @@
         <div class="text-center mt-10">
             <span class="link" id="linkTerms">📄 قراءة شروط الخدمة</span>
         </div>
-        <div class="footer-note mt-20">* سيتم ربط المفتاح بجهازك بشكل دائم.</div>
+        <div class="footer-note mt-20">* سيتم ربط المفتاح بيوزرك في روبلوكس بشكل دائم.</div>
     </div>
 
-    <!-- PAGE 2: VERIFICATION -->
+    <!-- ========== PAGE 2: VERIFICATION ========== -->
     <div class="page" id="pageVerify">
         <h2>🧠 التحقق البشري</h2>
         <p class="sub">الرجاء حل المعادلة للتأكد من أنك إنسان</p>
@@ -352,7 +396,22 @@
         </div>
     </div>
 
-    <!-- PAGE 3: KEY RESULT -->
+    <!-- ========== PAGE 3: USERNAME INPUT ========== -->
+    <div class="page" id="pageUsername">
+        <h2>👤 أدخل يوزرك</h2>
+        <p class="sub"><strong>اكتب يوزرك في روبلوكس</strong> (يجب أن يكون يوزر وليس اسم عادي)</p>
+        <input type="text" class="username-input" id="usernameInput" placeholder="اكتب يوزر روبلوكس هنا..." autofocus>
+        <div class="warning-text">
+            ⚠️ <strong>تنبيه:</strong> يجب كتابة يوزرك ليتم ربط المفتاح به، ولا يمكن لشخص ثاني استخدامه ✅
+        </div>
+        <button class="btn btn-success" id="btnConfirmUsername">✅ تأكيد اليوزر وإنشاء المفتاح</button>
+        <div id="usernameError" class="error-msg hidden">❌ يرجى كتابة يوزر صحيح (بدون مسافات)</div>
+        <div class="text-center mt-10">
+            <span class="link" id="linkBackVerify">↩️ العودة للتحقق</span>
+        </div>
+    </div>
+
+    <!-- ========== PAGE 4: KEY RESULT ========== -->
     <div class="page" id="pageKey">
         <h2>🎉 مفتاحك السري</h2>
         <p class="sub">هذا هو مفتاحك السري <strong>لا تشاركه مع أي شخص</strong></p>
@@ -363,26 +422,26 @@
         <button class="btn btn-secondary mt-20" id="btnBackHome">🏠 العودة للصفحة الرئيسية</button>
     </div>
 
-    <!-- PAGE 4: LOCKED -->
+    <!-- ========== PAGE 5: LOCKED ========== -->
     <div class="page" id="pageLocked">
         <h2>⏳ قيد الانتظار</h2>
         <p class="sub">لقد قمت بإنشاء مفتاح حديثاً، يرجى الانتظار حتى انتهاء صلاحيته</p>
         <div class="timer-box" id="timerDisplay">⏱️ 23:59:59</div>
         <div class="info-box">
             <strong>📌 ملاحظة:</strong> لا يمكنك إنشاء مفتاح جديد إلا بعد انتهاء صلاحية المفتاح الحالي (24 ساعة).<br>
-            <span style="color:#aaa;">حتى لو حذفت بيانات المتصفح، سيظل جهازك محظوراً حتى انتهاء الوقت.</span>
+            <span style="color:#aaa;">سيتم حذف المفتاح تلقائياً من الخادم بعد انتهاء صلاحيته.</span>
         </div>
         <button class="btn btn-secondary mt-20" id="btnLockedBack">🏠 العودة للرئيسية</button>
     </div>
 </div>
 
-<!-- TERMS MODAL -->
+<!-- ========== TERMS MODAL ========== -->
 <div class="modal" id="termsModal">
     <div class="modal-content">
         <h3>📜 شروط الخدمة</h3>
         <p>
             <strong>1.</strong> لا يمكنك إنشاء مفتاح بدلاً عن شخص آخر.<br><br>
-            <strong>2.</strong> يتم ربط المفتاح بـ HWID الخاص بجهازك بشكل دائم.<br><br>
+            <strong>2.</strong> يتم ربط المفتاح بيوزرك في روبلوكس بشكل دائم.<br><br>
             <strong>3.</strong> كل مفتاح صالح لمدة <strong>24 ساعة</strong> فقط.<br><br>
             <strong>4.</strong> لا يمكنك إنشاء مفتاح جديد قبل انتهاء الـ 24 ساعة.<br><br>
             <strong>5.</strong> حتى لو حذفت بيانات المتصفح، سيظل جهازك محظوراً حتى انتهاء الوقت.<br><br>
@@ -406,7 +465,6 @@
     // HWID ثابت 100% - يعتمد على مكونات الجهاز الفعلية
     // ============================================================
     function getPermanentHWID() {
-        // نقوم بجمع معلومات ثابتة عن الجهاز
         const screen = `${window.screen.width}x${window.screen.height}x${window.screen.colorDepth}`;
         const ua = navigator.userAgent || '';
         const lang = navigator.language || navigator.userLanguage || '';
@@ -416,10 +474,8 @@
         const memory = navigator.deviceMemory || '';
         const vendor = navigator.vendor || '';
         
-        // نخلط كل المعلومات معاً
         const base = `${screen}|${ua.substring(0, 100)}|${lang}|${timezone}|${platform}|${cpuCores}|${memory}|${vendor}`;
         
-        // دالة Hash قوية
         let hash1 = 0, hash2 = 0;
         for (let i = 0; i < base.length; i++) {
             const char = base.charCodeAt(i);
@@ -429,14 +485,10 @@
             hash2 = hash2 & hash2;
         }
         
-        // ندمج الـ hashes معاً للحصول على HWID فريد
         const hwid = 'HWID_' + Math.abs(hash1).toString(36).toUpperCase() + Math.abs(hash2).toString(36).toUpperCase();
-        
-        // نخزن في localStorage فقط للتأكد من عدم تغيره، لكن حتى لو انحذف، سيتولد نفس القيمة
         try {
             localStorage.setItem('hwid_permanent_backup', hwid);
         } catch(e) {}
-        
         return hwid;
     }
 
@@ -498,8 +550,8 @@
     let generatedKey = null;
     let termsChecked = false;
     let verifyChecked = false;
+    let enteredUsername = '';
     
-    // HWID ثابت لا يتغير أبداً
     const hwid = getPermanentHWID();
     let userIP = '';
     let lockTimerInterval = null;
@@ -514,6 +566,7 @@
     const btnCreate = document.getElementById('btnCreateKey');
     const linkTerms = document.getElementById('linkTerms');
     const linkBackTerms = document.getElementById('linkBackTerms');
+    const linkBackVerify = document.getElementById('linkBackVerify');
     const termsModal = document.getElementById('termsModal');
     const closeModal = document.getElementById('closeModal');
 
@@ -521,6 +574,10 @@
     const mathAnswer = document.getElementById('mathAnswer');
     const btnVerify = document.getElementById('btnVerify');
     const verifyError = document.getElementById('verifyError');
+
+    const usernameInput = document.getElementById('usernameInput');
+    const btnConfirmUsername = document.getElementById('btnConfirmUsername');
+    const usernameError = document.getElementById('usernameError');
 
     const keyDisplay = document.getElementById('keyDisplay');
     const btnCopy = document.getElementById('btnCopyKey');
@@ -552,6 +609,7 @@
     // ============================================================
     linkTerms.addEventListener('click', () => termsModal.classList.add('active'));
     linkBackTerms.addEventListener('click', () => showPage('pageTerms'));
+    linkBackVerify.addEventListener('click', () => showPage('pageVerify'));
     closeModal.addEventListener('click', () => termsModal.classList.remove('active'));
     termsModal.addEventListener('click', (e) => {
         if (e.target === termsModal) termsModal.classList.remove('active');
@@ -563,6 +621,7 @@
     btnCreate.addEventListener('click', async function() {
         if (btnCreate.disabled) return;
         
+        // Check if device has an active key
         const deviceRef = db.ref('devices/' + hwid);
         const snapshot = await deviceRef.once('value');
         const data = snapshot.val();
@@ -578,6 +637,7 @@
             }
         }
 
+        // Go to verification
         showPage('pageVerify');
         currentMath = generateMathEquation();
         mathEquation.textContent = currentMath.text;
@@ -640,7 +700,11 @@
             return;
         }
         if (userAns === currentMath.answer) {
-            generateAndShowKey();
+            // Go to username page
+            showPage('pageUsername');
+            usernameInput.value = '';
+            usernameError.classList.add('hidden');
+            usernameInput.focus();
         } else {
             verifyError.textContent = '❌ إجابة خاطئة، حاول مجدداً';
             verifyError.classList.remove('hidden');
@@ -656,22 +720,61 @@
     });
 
     // ============================================================
-    // GENERATE & STORE KEY
+    // USERNAME CONFIRMATION & KEY GENERATION
     // ============================================================
-    async function generateAndShowKey() {
-        const deviceRef = db.ref('devices/' + hwid);
-        const snap = await deviceRef.once('value');
-        const existing = snap.val();
-        
-        if (existing && existing.key && existing.expiresAt && Date.now() < existing.expiresAt) {
-            showLockedPage(existing.expiresAt);
+    btnConfirmUsername.addEventListener('click', async function() {
+        const username = usernameInput.value.trim();
+        if (username === '' || username.includes(' ')) {
+            usernameError.textContent = '❌ يرجى كتابة يوزر صحيح (بدون مسافات)';
+            usernameError.classList.remove('hidden');
             return;
         }
-        if (existing && existing.key) {
-            await db.ref('keys/' + existing.key).remove();
-            await deviceRef.remove();
+        
+        // Check if username is valid (at least 3 characters, only letters/numbers/underscore)
+        if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+            usernameError.textContent = '❌ يوزر غير صالح! يجب أن يكون 3-20 حرف (أحرف/أرقام/_ فقط)';
+            usernameError.classList.remove('hidden');
+            return;
         }
-
+        
+        usernameError.classList.add('hidden');
+        btnConfirmUsername.disabled = true;
+        btnConfirmUsername.textContent = '⏳ جاري الإنشاء...';
+        
+        // Check if this username already has an active key
+        const userKeyRef = db.ref('userKeys/' + username.toLowerCase());
+        const snap = await userKeyRef.once('value');
+        const existing = snap.val();
+        
+        if (existing && existing.key && existing.expiresAt) {
+            const now = Date.now();
+            if (now < existing.expiresAt) {
+                // This username already has an active key
+                usernameError.textContent = '❌ هذا اليوزر لديه مفتاح نشط بالفعل!';
+                usernameError.classList.remove('hidden');
+                btnConfirmUsername.disabled = false;
+                btnConfirmUsername.textContent = '✅ تأكيد اليوزر وإنشاء المفتاح';
+                return;
+            } else {
+                // Expired key - clean up
+                await db.ref('keys/' + existing.key).remove();
+                await userKeyRef.remove();
+            }
+        }
+        
+        // Also check if this HWID has an active key
+        const deviceRef = db.ref('devices/' + hwid);
+        const deviceSnap = await deviceRef.once('value');
+        const deviceData = deviceSnap.val();
+        
+        if (deviceData && deviceData.key && deviceData.expiresAt && Date.now() < deviceData.expiresAt) {
+            showLockedPage(deviceData.expiresAt);
+            btnConfirmUsername.disabled = false;
+            btnConfirmUsername.textContent = '✅ تأكيد اليوزر وإنشاء المفتاح';
+            return;
+        }
+        
+        // Generate unique key
         let newKey = '';
         let unique = false;
         while (!unique) {
@@ -687,30 +790,50 @@
         const now = Date.now();
         const expiresAt = now + 24 * 60 * 60 * 1000;
 
+        // Store key with username
         const keyData = {
+            username: username.toLowerCase(),
             hwid: hwid,
             ip: userIP || 'unknown',
             createdAt: now,
             expiresAt: expiresAt
         };
-        const deviceData = {
+        
+        const deviceData2 = {
             key: newKey,
+            username: username.toLowerCase(),
             createdAt: now,
             expiresAt: expiresAt,
             ip: userIP || 'unknown',
             hwid: hwid
         };
+        
+        const userKeyData = {
+            key: newKey,
+            username: username.toLowerCase(),
+            createdAt: now,
+            expiresAt: expiresAt
+        };
 
         const updates = {};
         updates['keys/' + newKey] = keyData;
-        updates['devices/' + hwid] = deviceData;
+        updates['devices/' + hwid] = deviceData2;
+        updates['userKeys/' + username.toLowerCase()] = userKeyData;
         await db.ref().update(updates);
 
         generatedKey = newKey;
+        enteredUsername = username;
         keyDisplay.textContent = newKey;
         showPage('pageKey');
         copyMessage.classList.add('hidden');
-    }
+        
+        btnConfirmUsername.disabled = false;
+        btnConfirmUsername.textContent = '✅ تأكيد اليوزر وإنشاء المفتاح';
+    });
+
+    usernameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') btnConfirmUsername.click();
+    });
 
     // ============================================================
     // COPY KEY
@@ -760,12 +883,14 @@
         updateCreateButton();
         generatedKey = null;
         verifyError.classList.add('hidden');
+        usernameError.classList.add('hidden');
     });
 
     // ============================================================
     // INITIAL CHECK ON LOAD
     // ============================================================
     async function checkDeviceOnLoad() {
+        // Check if device has active key
         const deviceRef = db.ref('devices/' + hwid);
         const snap = await deviceRef.once('value');
         const data = snap.val();
@@ -776,6 +901,10 @@
                 showLockedPage(data.expiresAt);
                 return;
             } else {
+                // Also clean up userKeys entry
+                if (data.username) {
+                    await db.ref('userKeys/' + data.username).remove();
+                }
                 await db.ref('keys/' + data.key).remove();
                 await deviceRef.remove();
             }
