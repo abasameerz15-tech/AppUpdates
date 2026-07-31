@@ -1,339 +1,615 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>هاكات وسكربتات عربي</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إنشاء المفاتيح</title>
+    <!-- Firebase App (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        /* منع السكرول تمامًا */
-        html, body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden !important;
-            height: 100%;
-            width: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
         body {
+            background: linear-gradient(145deg, #0e0e0e, #1a1a1a);
             min-height: 100vh;
-            background: radial-gradient(circle at 30% 10%, #1a0c0c 0%, #0d0505 100%);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Cairo', 'Segoe UI', system-ui, sans-serif;
             padding: 20px;
-            position: relative;
         }
-
-        /* خلفية ذهبية ناعمة */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(ellipse at 50% 80%, rgba(212, 175, 55, 0.08) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .card {
-            max-width: 480px;
+        .container {
+            background: #1e1e1e;
+            border-radius: 24px;
+            padding: 40px 30px;
+            max-width: 500px;
             width: 100%;
-            background: linear-gradient(145deg, rgba(25, 15, 10, 0.85), rgba(10, 5, 3, 0.95));
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(212, 175, 55, 0.25);
-            border-radius: 58px 58px 48px 48px;
-            padding: 32px 24px 40px;
-            box-shadow: 0 25px 50px -8px rgba(0,0,0,0.9), 0 0 0 1px rgba(212, 175, 55, 0.15) inset;
-            position: relative;
-            z-index: 2;
-            transition: box-shadow 0.3s ease;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+            border: 1px solid #2a2a2a;
+            transition: all 0.3s;
+        }
+        .page {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .page.active {
+            display: flex;
+        }
+        h2 {
+            color: #f0f0f0;
+            font-size: 22px;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .sub {
+            color: #aaa;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin: 10px 0;
+        }
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 10px 14px;
+            background: #2a2a2a;
+            border-radius: 12px;
+            transition: 0.2s;
+            border: 1px solid #333;
+        }
+        .check-item:hover {
+            background: #323232;
+        }
+        .check-box {
+            width: 28px;
+            height: 28px;
+            background: #3a3a3a;
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            color: #fff;
+            transition: 0.2s;
+            flex-shrink: 0;
+            border: 1px solid #555;
+        }
+        .check-box.active {
+            background: #1a73e8;
+            border-color: #1a73e8;
+        }
+        .check-text {
+            color: #ddd;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.25s;
             text-align: center;
         }
-
-        /* توهج ذهبي خفيف */
-        .card::after {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: 20%;
-            right: 20%;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, #d4af37, #f5d77b, #d4af37, transparent);
-            filter: blur(1px);
-            border-radius: 100%;
-            opacity: 0.7;
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
         }
-
-        /* إطار الصورة الدائري الفخم */
-        .image-wrapper {
-            position: relative;
-            width: 180px;
-            height: 180px;
-            margin: 0 auto 28px;
-            border-radius: 50%;
-            padding: 8px;
-            background: linear-gradient(135deg, #d4af37, #b8962e, #f5d77b, #b8962e);
-            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3), 0 0 80px rgba(212, 175, 55, 0.1);
-            animation: borderGlow 3s infinite alternate;
+        .btn-primary:hover {
+            background: #1557b0;
+            transform: scale(1.02);
         }
-
-        @keyframes borderGlow {
-            0% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.2), 0 0 60px rgba(212, 175, 55, 0.05); }
-            100% { box-shadow: 0 0 50px rgba(212, 175, 55, 0.5), 0 0 100px rgba(212, 175, 55, 0.15); }
+        .btn-primary:disabled {
+            background: #3a3a3a;
+            color: #777;
+            cursor: not-allowed;
+            transform: none;
         }
-
-        .image-container {
+        .btn-secondary {
+            background: #2a2a2a;
+            color: #ddd;
+            border: 1px solid #444;
+        }
+        .btn-secondary:hover {
+            background: #3a3a3a;
+        }
+        .btn-success {
+            background: #0f9d58;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #0b7a45;
+        }
+        .link {
+            color: #8ab4f8;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .link:hover {
+            color: #aecbff;
+        }
+        .mt-10 { margin-top: 10px; }
+        .mt-20 { margin-top: 20px; }
+        .text-center { text-align: center; }
+        .math-box {
+            background: #252525;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid #3a3a3a;
+        }
+        .math-equation {
+            font-size: 28px;
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 2px;
+            direction: ltr;
+        }
+        .math-input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #444;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 20px;
+            text-align: center;
+            margin-top: 15px;
+            outline: none;
+            transition: 0.2s;
+        }
+        .math-input:focus {
+            border-color: #1a73e8;
+        }
+        .key-display {
+            background: #252525;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #3a3a3a;
+            user-select: none;
+            -webkit-user-select: none;
+            font-family: 'Courier New', monospace;
+            font-size: 22px;
+            color: #0f9d58;
+            text-align: center;
+            letter-spacing: 2px;
+            font-weight: bold;
+            word-break: break-all;
+            direction: ltr;
+        }
+        .key-display::selection {
+            background: transparent;
+        }
+        .key-display::-moz-selection {
+            background: transparent;
+        }
+        .footer-note {
+            color: #888;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            border-radius: 50%;
-            overflow: hidden;
-            background: #0f0a07;
-            display: flex;
+            background: rgba(0,0,0,0.8);
             justify-content: center;
             align-items: center;
-            border: 3px solid #1a100b;
-            position: relative;
+            z-index: 999;
+            padding: 20px;
         }
-
-        .image-container img {
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: #1e1e1e;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            animation: floatImage 3.8s ease-in-out infinite;
-            filter: saturate(1.05) contrast(1.02);
-            border-radius: 50%;
+            border: 1px solid #333;
+            max-height: 80vh;
+            overflow-y: auto;
         }
-
-        /* حركة الصعود والهبوط */
-        @keyframes floatImage {
-            0% { transform: translateY(0px) scale(1); }
-            50% { transform: translateY(-18px) scale(1.02); }
-            100% { transform: translateY(0px) scale(1); }
+        .modal-content h3 {
+            color: #fff;
+            margin-bottom: 15px;
+            text-align: center;
         }
-
-        /* النص الرئيسي */
-        .main-title {
-            font-size: 1.7rem;
-            font-weight: 700;
-            line-height: 1.4;
-            margin-bottom: 18px;
-            color: #f5e7c8;
-            text-shadow: 0 2px 15px rgba(212, 175, 55, 0.3);
-            letter-spacing: 0.5px;
-            word-spacing: 2px;
+        .modal-content p {
+            color: #ccc;
+            line-height: 1.8;
+            font-size: 15px;
         }
-
-        .main-title span {
-            background: linear-gradient(135deg, #f5d77b, #d4af37, #b8962e);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-            display: inline-block;
-        }
-
-        .description {
-            font-size: 1rem;
-            color: #cdbaa0;
-            background: rgba(212, 175, 55, 0.04);
-            padding: 14px 16px;
-            border-radius: 60px;
-            backdrop-filter: blur(2px);
-            border: 1px solid rgba(212, 175, 55, 0.08);
-            margin: 12px 0 32px;
-            line-height: 1.7;
-            font-weight: 400;
-            letter-spacing: 0.3px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        .description strong {
-            color: #f5d77b;
-            font-weight: 600;
-        }
-
-        /* زر الدخول الفخم */
-        .btn-gold {
-            display: inline-block;
-            background: linear-gradient(145deg, #d4af37, #b8962e);
-            border: none;
-            padding: 16px 44px;
-            border-radius: 60px;
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #0d0505;
-            text-decoration: none;
-            box-shadow: 0 8px 28px rgba(212, 175, 55, 0.35), 0 0 0 1px #f5d77b inset;
-            transition: all 0.25s ease;
-            letter-spacing: 1px;
-            text-shadow: 0 1px 2px rgba(255, 215, 0, 0.3);
-            cursor: pointer;
+        .modal-close {
+            margin-top: 20px;
             width: 100%;
-            max-width: 260px;
-            margin: 8px auto 0;
-            position: relative;
-            overflow: hidden;
         }
-
-        .btn-gold::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 30% 40%, rgba(255, 235, 140, 0.3), transparent 60%);
-            opacity: 0;
-            transition: opacity 0.4s;
-            pointer-events: none;
+        .error-msg {
+            color: #f28b82;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 5px;
         }
-
-        .btn-gold:hover {
-            transform: scale(1.04) translateY(-3px);
-            box-shadow: 0 14px 40px rgba(212, 175, 55, 0.5), 0 0 0 2px #f5d77b inset;
-            background: linear-gradient(145deg, #e2c14a, #c49f30);
+        .success-msg {
+            color: #81c995;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 5px;
         }
-
-        .btn-gold:hover::before {
-            opacity: 1;
+        .hidden {
+            display: none;
         }
-
-        .btn-gold:active {
-            transform: scale(0.97) translateY(2px);
-            box-shadow: 0 4px 18px rgba(212, 175, 55, 0.4);
-        }
-
-        /* زخارف جانبية */
-        .ornament {
+        .flex-center {
             display: flex;
             justify-content: center;
-            gap: 14px;
-            margin-top: 28px;
-            opacity: 0.4;
         }
-
-        .ornament span {
-            display: inline-block;
-            width: 34px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #d4af37, transparent);
-            border-radius: 10px;
-        }
-
-        /* تنسيق الجوال */
         @media (max-width: 480px) {
-            .card {
-                padding: 28px 18px 32px;
-                border-radius: 44px;
-            }
-            .image-wrapper {
-                width: 150px;
-                height: 150px;
-                padding: 6px;
-            }
-            .main-title {
-                font-size: 1.4rem;
-            }
-            .description {
-                font-size: 0.95rem;
-                padding: 12px 14px;
-            }
-            .btn-gold {
-                font-size: 1.1rem;
-                padding: 14px 20px;
-                max-width: 220px;
-            }
-        }
-
-        @media (max-width: 380px) {
-            .image-wrapper {
-                width: 130px;
-                height: 130px;
-            }
-            .main-title {
-                font-size: 1.2rem;
-            }
-        }
-
-        /* تحسين الخط العربي */
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
-
-        /* إضافة لمسة من الأناقة */
-        .glow-text {
-            animation: softPulse 3s infinite alternate;
-        }
-
-        @keyframes softPulse {
-            0% { text-shadow: 0 0 8px rgba(212, 175, 55, 0.1); }
-            100% { text-shadow: 0 0 25px rgba(212, 175, 55, 0.25); }
-        }
-
-        /* شريط سفلي */
-        .footer-note {
-            margin-top: 26px;
-            font-size: 0.65rem;
-            color: #7a6a55;
-            letter-spacing: 1px;
-            word-spacing: 2px;
-            border-top: 1px solid rgba(212, 175, 55, 0.08);
-            padding-top: 16px;
-            opacity: 0.6;
+            .container { padding: 25px 18px; }
+            .key-display { font-size: 18px; }
         }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <!-- الصورة الدائرية مع الإطار الذهبي -->
-    <div class="image-wrapper">
-        <div class="image-container">
-            <img src="https://raw.githubusercontent.com/abasameerz15-tech/AppUpdates/refs/heads/main/IMG_20260621_170821_608.jpg" 
-                 alt="شعار الهاكات والسكربتات" 
-                 loading="eager" 
-                 decoding="async">
+<div class="container" id="appContainer">
+    <!-- ========== PAGE 1: TERMS ========== -->
+    <div class="page active" id="pageTerms">
+        <h2>🔐 إنشاء مفتاح جديد</h2>
+        <p class="sub">يرجى الموافقة على الشروط لإنشاء مفتاح</p>
+        <div class="checkbox-group">
+            <div class="check-item" id="checkTerms">
+                <div class="check-box" id="boxTerms">✓</div>
+                <span class="check-text">أوافق على شروط الخدمة</span>
+            </div>
+            <div class="check-item" id="checkVerify">
+                <div class="check-box" id="boxVerify">✓</div>
+                <span class="check-text">أوافق على إكمال التحقق</span>
+            </div>
+        </div>
+        <button class="btn btn-primary" id="btnCreateKey" disabled>إنشاء مفتاح</button>
+        <div class="text-center mt-10">
+            <span class="link" id="linkTerms">📄 قراءة شروط الخدمة</span>
+        </div>
+        <div class="footer-note mt-20">* سيتم ربط المفتاح بجهازك وشبكتك.</div>
+    </div>
+
+    <!-- ========== PAGE 2: VERIFICATION ========== -->
+    <div class="page" id="pageVerify">
+        <h2>🧠 التحقق من أنك إنسان</h2>
+        <p class="sub">الرجاء إكمال التحقق قبل الإستمرار</p>
+        <div class="math-box">
+            <div class="math-equation" id="mathEquation">12 + 7 = ?</div>
+            <input type="number" class="math-input" id="mathAnswer" placeholder="أدخل الناتج" autofocus>
+            <button class="btn btn-primary mt-10" id="btnVerify">تأكيد الجواب</button>
+            <div id="verifyError" class="error-msg hidden">❌ إجابة خاطئة، حاول مجدداً</div>
         </div>
     </div>
 
-    <!-- النص الرئيسي -->
-    <h1 class="main-title">
-        مرحبًا بك في <br><span>أفضل موقع هاكات وسكربتات عربي</span>
-    </h1>
-
-    <!-- النص الوصفي -->
-    <div class="description">
-        <strong>✦</strong> إضغط الزر إدناه لدخول بوت الهاكات والسكربتات <strong>✦</strong>
-    </div>
-
-    <!-- زر الدخول -->
-    <a href="https://t.me/SK500SZBOT" 
-       class="btn-gold" 
-       target="_blank" 
-       rel="noopener noreferrer">
-        دخول
-    </a>
-
-    <!-- زخارف -->
-    <div class="ornament">
-        <span></span>
-        <span style="width: 20px;"></span>
-        <span></span>
-    </div>
-
-    <!-- تذييل أنيق -->
-    <div class="footer-note">
-        ⚡ SECURE • PREMIUM • ARABIC ⚡
+    <!-- ========== PAGE 3: KEY RESULT ========== -->
+    <div class="page" id="pageKey">
+        <h2>🎉 مفتاحك السري</h2>
+        <p class="sub">هذا هو مفتاحك السري لا تشاركه لأحد</p>
+        <div class="key-display" id="keyDisplay">FREE_abcdef123456</div>
+        <button class="btn btn-success" id="btnCopyKey">📋 نسخ المفتاح</button>
+        <div class="footer-note">⏳ صالح لمدة 24 ساعة من الآن</div>
+        <div id="copyMessage" class="success-msg hidden">✅ تم النسخ!</div>
+        <button class="btn btn-secondary mt-20" id="btnBackHome">🏠 العودة للصفحة الرئيسية</button>
     </div>
 </div>
+
+<!-- ========== TERMS MODAL ========== -->
+<div class="modal" id="termsModal">
+    <div class="modal-content">
+        <h3>📜 شروط الخدمة</h3>
+        <p>
+            <strong>1.</strong> لن يمكنك إنشاء مفتاح بدلاً عن شخص آخر، يجب الشخص يحصل عليه بنفسه أو سيتم حظرك من الموقع.<br><br>
+            <strong>2.</strong> يتم إنشاء المفاتيح عن طريق IP هاتفك وشبكتك و HWID الخاص بجهازك لكي لا تستطيع إنشاء مفتاح لشخص آخر!!<br><br>
+            شكراً لك على قراءة شروط الخدمة والالتزام بها. 🤍
+        </p>
+        <button class="btn btn-primary modal-close" id="closeModal">فهمت</button>
+    </div>
+</div>
+
+<script>
+    // ------------------------- FIREBASE INIT -------------------------
+    const firebaseConfig = {
+        databaseURL: "https://sz-chat-1306e-default-rtdb.firebaseio.com/"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // ------------------------- UTILITIES -------------------------
+    // Generate random string: 6 digits + 6 lowercase letters
+    function generateKeySuffix() {
+        const digits = '0123456789';
+        const letters = 'abcdefghijklmnopqrstuvwxyz';
+        let result = '';
+        for (let i = 0; i < 6; i++) result += digits[Math.floor(Math.random() * digits.length)];
+        for (let i = 0; i < 6; i++) result += letters[Math.floor(Math.random() * letters.length)];
+        // shuffle to mix letters and digits
+        return result.split('').sort(() => Math.random() - 0.5).join('');
+    }
+
+    // Get device ID from localStorage
+    function getDeviceID() {
+        let id = localStorage.getItem('deviceID');
+        if (!id) {
+            id = 'dev_' + Math.random().toString(36).substr(2, 16) + '_' + Date.now().toString(36);
+            localStorage.setItem('deviceID', id);
+        }
+        return id;
+    }
+
+    // Get IP via api.ipify.org
+    function getIP() {
+        return new Promise((resolve) => {
+            fetch('https://api.ipify.org?format=json')
+                .then(res => res.json())
+                .then(data => resolve(data.ip))
+                .catch(() => resolve('unknown'));
+        });
+    }
+
+    // Show page
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+    }
+
+    // Math equation generator
+    function generateMathEquation() {
+        const a = Math.floor(Math.random() * 20) + 1;
+        const b = Math.floor(Math.random() * 20) + 1;
+        const op = Math.random() > 0.5 ? '+' : '-';
+        let result;
+        if (op === '+') result = a + b;
+        else {
+            // ensure positive
+            if (a < b) return generateMathEquation(); // retry
+            result = a - b;
+        }
+        return { text: `${a} ${op} ${b} = ?`, answer: result };
+    }
+
+    // ------------------------- STATE -------------------------
+    let currentMath = null;
+    let generatedKey = null;
+    let termsChecked = false;
+    let verifyChecked = false;
+    const deviceID = getDeviceID();
+    let userIP = '';
+
+    // ------------------------- DOM REFS -------------------------
+    const checkTerms = document.getElementById('checkTerms');
+    const checkVerify = document.getElementById('checkVerify');
+    const boxTerms = document.getElementById('boxTerms');
+    const boxVerify = document.getElementById('boxVerify');
+    const btnCreate = document.getElementById('btnCreateKey');
+    const linkTerms = document.getElementById('linkTerms');
+    const termsModal = document.getElementById('termsModal');
+    const closeModal = document.getElementById('closeModal');
+
+    const mathEquation = document.getElementById('mathEquation');
+    const mathAnswer = document.getElementById('mathAnswer');
+    const btnVerify = document.getElementById('btnVerify');
+    const verifyError = document.getElementById('verifyError');
+
+    const keyDisplay = document.getElementById('keyDisplay');
+    const btnCopy = document.getElementById('btnCopyKey');
+    const copyMessage = document.getElementById('copyMessage');
+    const btnBackHome = document.getElementById('btnBackHome');
+
+    // ------------------------- CHECKBOX TOGGLES -------------------------
+    checkTerms.addEventListener('click', function() {
+        termsChecked = !termsChecked;
+        boxTerms.classList.toggle('active', termsChecked);
+        updateCreateButton();
+    });
+    checkVerify.addEventListener('click', function() {
+        verifyChecked = !verifyChecked;
+        boxVerify.classList.toggle('active', verifyChecked);
+        updateCreateButton();
+    });
+
+    function updateCreateButton() {
+        btnCreate.disabled = !(termsChecked && verifyChecked);
+    }
+
+    // ------------------------- TERMS MODAL -------------------------
+    linkTerms.addEventListener('click', () => {
+        termsModal.classList.add('active');
+    });
+    closeModal.addEventListener('click', () => {
+        termsModal.classList.remove('active');
+    });
+    termsModal.addEventListener('click', (e) => {
+        if (e.target === termsModal) termsModal.classList.remove('active');
+    });
+
+    // ------------------------- CREATE KEY BUTTON -------------------------
+    btnCreate.addEventListener('click', async function() {
+        if (btnCreate.disabled) return;
+        // Move to verification page
+        showPage('pageVerify');
+        // Generate new math equation
+        currentMath = generateMathEquation();
+        mathEquation.textContent = currentMath.text;
+        mathAnswer.value = '';
+        verifyError.classList.add('hidden');
+        mathAnswer.focus();
+        // fetch IP (async)
+        userIP = await getIP();
+    });
+
+    // ------------------------- VERIFICATION -------------------------
+    btnVerify.addEventListener('click', function() {
+        const userAns = parseInt(mathAnswer.value);
+        if (isNaN(userAns)) {
+            verifyError.textContent = '❌ يرجى إدخال رقم صحيح';
+            verifyError.classList.remove('hidden');
+            return;
+        }
+        if (userAns === currentMath.answer) {
+            // Correct! Generate key and move to final page
+            generateAndShowKey();
+        } else {
+            // Wrong: new equation
+            verifyError.textContent = '❌ إجابة خاطئة، حاول مجدداً';
+            verifyError.classList.remove('hidden');
+            currentMath = generateMathEquation();
+            mathEquation.textContent = currentMath.text;
+            mathAnswer.value = '';
+            mathAnswer.focus();
+        }
+    });
+
+    mathAnswer.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') btnVerify.click();
+    });
+
+    // ------------------------- GENERATE & STORE KEY -------------------------
+    async function generateAndShowKey() {
+        // 1. Check if device already has an active key (within 24h) and delete it
+        const deviceRef = db.ref('devices/' + deviceID);
+        const snapshot = await deviceRef.once('value');
+        const existing = snapshot.val();
+        if (existing && existing.key) {
+            // Delete old key from keys node
+            await db.ref('keys/' + existing.key).remove();
+            // Delete device entry
+            await deviceRef.remove();
+        }
+
+        // 2. Generate unique key
+        let newKey = '';
+        let unique = false;
+        while (!unique) {
+            const suffix = generateKeySuffix();
+            const candidate = 'FREE_' + suffix;
+            const keySnap = await db.ref('keys/' + candidate).once('value');
+            if (!keySnap.exists()) {
+                newKey = candidate;
+                unique = true;
+            }
+        }
+
+        // 3. Create expiry (24h from now)
+        const now = Date.now();
+        const expiresAt = now + 24 * 60 * 60 * 1000;
+
+        // 4. Prepare data
+        const keyData = {
+            deviceID: deviceID,
+            ip: userIP || 'unknown',
+            createdAt: now,
+            expiresAt: expiresAt
+        };
+        const deviceData = {
+            key: newKey,
+            createdAt: now,
+            expiresAt: expiresAt
+        };
+
+        // 5. Store in Firebase (atomic updates)
+        const updates = {};
+        updates['keys/' + newKey] = keyData;
+        updates['devices/' + deviceID] = deviceData;
+        await db.ref().update(updates);
+
+        // 6. Display the key
+        generatedKey = newKey;
+        keyDisplay.textContent = newKey;
+        showPage('pageKey');
+        copyMessage.classList.add('hidden');
+    }
+
+    // ------------------------- COPY KEY -------------------------
+    btnCopy.addEventListener('click', function() {
+        if (!generatedKey) return;
+        // Use Clipboard API
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(generatedKey).then(() => {
+                copyMessage.textContent = '✅ تم نسخ المفتاح!';
+                copyMessage.classList.remove('hidden');
+                setTimeout(() => copyMessage.classList.add('hidden'), 2500);
+            }).catch(() => {
+                // fallback
+                copyViaFallback();
+            });
+        } else {
+            copyViaFallback();
+        }
+    });
+
+    function copyViaFallback() {
+        // Create temporary textarea
+        const textarea = document.createElement('textarea');
+        textarea.value = generatedKey;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            copyMessage.textContent = '✅ تم نسخ المفتاح!';
+            copyMessage.classList.remove('hidden');
+            setTimeout(() => copyMessage.classList.add('hidden'), 2500);
+        } catch (e) {
+            copyMessage.textContent = '❌ فشل النسخ، حاول يدوياً';
+            copyMessage.classList.remove('hidden');
+        }
+        document.body.removeChild(textarea);
+    }
+
+    // ------------------------- BACK HOME -------------------------
+    btnBackHome.addEventListener('click', function() {
+        showPage('pageTerms');
+        // Reset checkboxes? We keep them checked if they were.
+        // But we can reset them to unchecked for a fresh start?
+        // The user might want to create another key. We'll reset.
+        termsChecked = false;
+        verifyChecked = false;
+        boxTerms.classList.remove('active');
+        boxVerify.classList.remove('active');
+        updateCreateButton();
+        generatedKey = null;
+        // Reset math page too
+        verifyError.classList.add('hidden');
+    });
+
+    // ------------------------- INITIAL -------------------------
+    // Show terms page by default
+    showPage('pageTerms');
+    // Pre-fetch IP
+    getIP().then(ip => userIP = ip);
+
+    // Disable copy of key by select
+    keyDisplay.addEventListener('selectstart', (e) => e.preventDefault());
+    keyDisplay.addEventListener('copy', (e) => e.preventDefault());
+</script>
 
 </body>
 </html>
