@@ -397,10 +397,11 @@
         <h3>📜 شروط الخدمة</h3>
         <p>
             <strong>1.</strong> لن يمكنك إنشاء مفتاح بدلاً عن شخص آخر، يجب أن يحصل الشخص على مفتاحه بنفسه، وإلا سيتم حظرك من الموقع.<br><br>
-            <strong>2.</strong> يتم إنشاء المفاتيح باستخدام معرف جهازك (Device ID) وعنوان IP الخاص بشبكتك، لمنع إنشاء مفاتيح لحسابات أخرى.<br><br>
+            <strong>2.</strong> يتم إنشاء المفاتيح باستخدام HWID الخاص بجهازك وعنوان IP الخاص بشبكتك، لمنع إنشاء مفاتيح لحسابات أخرى.<br><br>
             <strong>3.</strong> كل مفتاح صالح لمدة <strong>24 ساعة</strong> فقط، بعدها ينتهي تلقائياً ولا يمكن استخدامه.<br><br>
             <strong>4.</strong> لا يمكنك إنشاء مفتاح جديد قبل انتهاء صلاحية المفتاح السابق (يجب الانتظار 24 ساعة).<br><br>
-            <strong>5.</strong> أي محاولة لتجاوز النظام قد تؤدي إلى حظر جهازك نهائياً.<br><br>
+            <strong>5.</strong> حتى لو قمت بحذف بيانات المتصفح، سيبقى جهازك محظوراً من إنشاء مفتاح جديد حتى انتهاء الـ 24 ساعة.<br><br>
+            <strong>6.</strong> أي محاولة لتجاوز النظام قد تؤدي إلى حظر جهازك نهائياً.<br><br>
             شكراً لك على قراءة شروط الخدمة والالتزام بها. 🤍
         </p>
         <button class="btn btn-primary modal-close" id="closeModal">✅ فهمت ووافقت</button>
@@ -418,10 +419,10 @@
     const db = firebase.database();
 
     // ============================================================
-    //                      HWID GENERATOR (مستقر)
+    //                      HWID GENERATOR (ثابت ومستقر)
     // ============================================================
     function getHWID() {
-        // نستخدم مجموعة من العوامل الثابتة للحصول على HWID فريد ومستقر
+        // نستخدم عوامل ثابتة للحصول على HWID فريد لكل جهاز
         const screen = `${window.screen.width}x${window.screen.height}x${window.screen.colorDepth}`;
         const ua = navigator.userAgent || '';
         const lang = navigator.language || navigator.userLanguage || '';
@@ -439,11 +440,12 @@
             hash = ((hash << 5) - hash) + char;
             hash = hash & hash;
         }
-        // نضيف timestamp لجعل المعرف فريد ولكن ثابت (يتم حفظه في localStorage)
-        let hwid = localStorage.getItem('hwid');
+        
+        // نستخدم localStorage فقط لتخزين HWID بشكل ثابت
+        let hwid = localStorage.getItem('hwid_permanent');
         if (!hwid) {
             hwid = 'HWID_' + Math.abs(hash).toString(36).toUpperCase() + '_' + Date.now().toString(36).toUpperCase();
-            localStorage.setItem('hwid', hwid);
+            localStorage.setItem('hwid_permanent', hwid);
         }
         return hwid;
     }
@@ -571,7 +573,7 @@
     btnCreate.addEventListener('click', async function() {
         if (btnCreate.disabled) return;
         
-        // التحقق من وجود مفتاح نشط لهذا HWID
+        // التحقق من وجود مفتاح نشط لهذا HWID في Firebase
         const deviceRef = db.ref('devices/' + hwid);
         const snapshot = await deviceRef.once('value');
         const data = snapshot.val();
@@ -579,17 +581,17 @@
         if (data && data.key && data.expiresAt) {
             const now = Date.now();
             if (now < data.expiresAt) {
-                // مفتاح نشط - نعرض صفحة الانتظار
+                // مفتاح نشط - نعرض صفحة الانتظار مع المؤقت
                 showLockedPage(data.expiresAt);
                 return;
             } else {
-                // المفتاح منتهي - نمسحه
+                // المفتاح منتهي - نمسحه من Firebase
                 await db.ref('keys/' + data.key).remove();
                 await deviceRef.remove();
             }
         }
 
-        // ننتقل لصفحة التحقق
+        // لا يوجد مفتاح نشط - ننتقل لصفحة التحقق
         showPage('pageVerify');
         currentMath = generateMathEquation();
         mathEquation.textContent = currentMath.text;
@@ -615,7 +617,7 @@
                 clearInterval(lockTimerInterval);
                 timerDisplay.textContent = '⏱️ انتهت الصلاحية! يمكنك إنشاء مفتاح جديد.';
                 
-                // حذف المفتاح من الخادم
+                // حذف المفتاح من Firebase تلقائياً
                 const deviceRef = db.ref('devices/' + hwid);
                 deviceRef.once('value').then(snap => {
                     const data = snap.val();
@@ -703,7 +705,7 @@
         const now = Date.now();
         const expiresAt = now + 24 * 60 * 60 * 1000;
 
-        // حفظ البيانات مع HWID و IP
+        // حفظ البيانات مع HWID و IP في Firebase
         const keyData = {
             hwid: hwid,
             ip: userIP || 'unknown',
@@ -783,6 +785,7 @@
     //                      INITIAL CHECK ON LOAD
     // ============================================================
     async function checkDeviceOnLoad() {
+        // نفحص في Firebase إذا كان هذا الجهاز لديه مفتاح نشط
         const deviceRef = db.ref('devices/' + hwid);
         const snap = await deviceRef.once('value');
         const data = snap.val();
@@ -790,11 +793,11 @@
         if (data && data.key && data.expiresAt) {
             const now = Date.now();
             if (now < data.expiresAt) {
-                // مفتاح نشط - نعرض المؤقت
+                // مفتاح نشط - نعرض المؤقت فوراً
                 showLockedPage(data.expiresAt);
                 return;
             } else {
-                // منتهي - نمسحه
+                // منتهي - نمسحه من Firebase
                 await db.ref('keys/' + data.key).remove();
                 await deviceRef.remove();
             }
@@ -815,7 +818,7 @@
     // جلب الIP عند التحميل
     getIP().then(ip => userIP = ip);
     
-    // التحقق من وجود مفتاح نشط
+    // التحقق من وجود مفتاح نشط فور تحميل الصفحة
     checkDeviceOnLoad();
 </script>
 
