@@ -161,13 +161,6 @@
             background: #0b7a45;
             transform: scale(1.02);
         }
-        .btn-danger {
-            background: #d93025;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #b3261e;
-        }
         .link {
             color: #8ab4f8;
             text-decoration: underline;
@@ -305,20 +298,6 @@
         .hidden {
             display: none !important;
         }
-        .flex-center {
-            display: flex;
-            justify-content: center;
-        }
-        .badge {
-            display: inline-block;
-            background: #1a73e8;
-            color: #fff;
-            font-size: 12px;
-            padding: 3px 14px;
-            border-radius: 30px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
         .info-box {
             background: #222;
             border-radius: 14px;
@@ -429,32 +408,49 @@
 </div>
 
 <script>
-    // ------------------------- FIREBASE INIT -------------------------
+    // ============================================================
+    //                      FIREBASE INIT
+    // ============================================================
     const firebaseConfig = {
         databaseURL: "https://sz-chat-1306e-default-rtdb.firebaseio.com/"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // ------------------------- UTILITIES -------------------------
-    function generateKeySuffix() {
-        const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        let result = '';
-        for (let i = 0; i < 12; i++) {
-            result += chars[Math.floor(Math.random() * chars.length)];
+    // ============================================================
+    //                      HWID GENERATOR (مستقر)
+    // ============================================================
+    function getHWID() {
+        // نستخدم مجموعة من العوامل الثابتة للحصول على HWID فريد ومستقر
+        const screen = `${window.screen.width}x${window.screen.height}x${window.screen.colorDepth}`;
+        const ua = navigator.userAgent || '';
+        const lang = navigator.language || navigator.userLanguage || '';
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        const platform = navigator.platform || '';
+        const cpuClass = navigator.hardwareConcurrency || '';
+        const memory = navigator.deviceMemory || '';
+        
+        const base = `${screen}|${ua.substring(0, 80)}|${lang}|${timezone}|${platform}|${cpuClass}|${memory}`;
+        
+        // دالة Hash بسيطة
+        let hash = 0;
+        for (let i = 0; i < base.length; i++) {
+            const char = base.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
         }
-        return result;
+        // نضيف timestamp لجعل المعرف فريد ولكن ثابت (يتم حفظه في localStorage)
+        let hwid = localStorage.getItem('hwid');
+        if (!hwid) {
+            hwid = 'HWID_' + Math.abs(hash).toString(36).toUpperCase() + '_' + Date.now().toString(36).toUpperCase();
+            localStorage.setItem('hwid', hwid);
+        }
+        return hwid;
     }
 
-    function getDeviceID() {
-        let id = localStorage.getItem('deviceID');
-        if (!id) {
-            id = 'dev_' + Math.random().toString(36).substr(2, 14) + '_' + Date.now().toString(36);
-            localStorage.setItem('deviceID', id);
-        }
-        return id;
-    }
-
+    // ============================================================
+    //                      GET IP
+    // ============================================================
     function getIP() {
         return new Promise((resolve) => {
             fetch('https://api.ipify.org?format=json')
@@ -462,6 +458,18 @@
                 .then(data => resolve(data.ip))
                 .catch(() => resolve('unknown'));
         });
+    }
+
+    // ============================================================
+    //                      UTILITIES
+    // ============================================================
+    function generateKeySuffix() {
+        const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        let result = '';
+        for (let i = 0; i < 12; i++) {
+            result += chars[Math.floor(Math.random() * chars.length)];
+        }
+        return result;
     }
 
     function showPage(pageId) {
@@ -491,16 +499,22 @@
         return `⏱️ ${h}:${m}:${s}`;
     }
 
-    // ------------------------- STATE -------------------------
+    // ============================================================
+    //                      STATE
+    // ============================================================
     let currentMath = null;
     let generatedKey = null;
     let termsChecked = false;
     let verifyChecked = false;
-    const deviceID = getDeviceID();
+    
+    // الحصول على HWID الثابت + IP
+    const hwid = getHWID();
     let userIP = '';
     let lockTimerInterval = null;
 
-    // ------------------------- DOM REFS -------------------------
+    // ============================================================
+    //                      DOM REFS
+    // ============================================================
     const checkTerms = document.getElementById('checkTerms');
     const checkVerify = document.getElementById('checkVerify');
     const boxTerms = document.getElementById('boxTerms');
@@ -523,7 +537,9 @@
     const btnLockedBack = document.getElementById('btnLockedBack');
     const timerDisplay = document.getElementById('timerDisplay');
 
-    // ------------------------- CHECKBOX TOGGLES -------------------------
+    // ============================================================
+    //                      CHECKBOX TOGGLES
+    // ============================================================
     checkTerms.addEventListener('click', function() {
         termsChecked = !termsChecked;
         boxTerms.classList.toggle('active', termsChecked);
@@ -539,7 +555,9 @@
         btnCreate.disabled = !(termsChecked && verifyChecked);
     }
 
-    // ------------------------- TERMS MODAL -------------------------
+    // ============================================================
+    //                      TERMS MODAL
+    // ============================================================
     linkTerms.addEventListener('click', () => termsModal.classList.add('active'));
     linkBackTerms.addEventListener('click', () => showPage('pageTerms'));
     closeModal.addEventListener('click', () => termsModal.classList.remove('active'));
@@ -547,27 +565,31 @@
         if (e.target === termsModal) termsModal.classList.remove('active');
     });
 
-    // ------------------------- CREATE KEY BUTTON -------------------------
+    // ============================================================
+    //                      CREATE KEY BUTTON
+    // ============================================================
     btnCreate.addEventListener('click', async function() {
         if (btnCreate.disabled) return;
-        // Check if device has an active key (not expired)
-        const deviceRef = db.ref('devices/' + deviceID);
+        
+        // التحقق من وجود مفتاح نشط لهذا HWID
+        const deviceRef = db.ref('devices/' + hwid);
         const snapshot = await deviceRef.once('value');
         const data = snapshot.val();
+        
         if (data && data.key && data.expiresAt) {
             const now = Date.now();
             if (now < data.expiresAt) {
-                // Still active — show locked page with timer
+                // مفتاح نشط - نعرض صفحة الانتظار
                 showLockedPage(data.expiresAt);
                 return;
             } else {
-                // Expired — delete it
+                // المفتاح منتهي - نمسحه
                 await db.ref('keys/' + data.key).remove();
                 await deviceRef.remove();
             }
         }
 
-        // Move to verification
+        // ننتقل لصفحة التحقق
         showPage('pageVerify');
         currentMath = generateMathEquation();
         mathEquation.textContent = currentMath.text;
@@ -577,18 +599,33 @@
         userIP = await getIP();
     });
 
-    // ------------------------- LOCKED PAGE WITH TIMER -------------------------
+    // ============================================================
+    //                      LOCKED PAGE WITH TIMER
+    // ============================================================
     function showLockedPage(expiresAt) {
         showPage('pageLocked');
         if (lockTimerInterval) clearInterval(lockTimerInterval);
+        
         const updateTimer = () => {
             const now = Date.now();
             const remaining = Math.max(0, expiresAt - now);
             timerDisplay.textContent = formatTime(remaining);
+            
             if (remaining <= 0) {
                 clearInterval(lockTimerInterval);
                 timerDisplay.textContent = '⏱️ انتهت الصلاحية! يمكنك إنشاء مفتاح جديد.';
-                // Optionally auto-redirect to terms after a moment
+                
+                // حذف المفتاح من الخادم
+                const deviceRef = db.ref('devices/' + hwid);
+                deviceRef.once('value').then(snap => {
+                    const data = snap.val();
+                    if (data && data.key) {
+                        db.ref('keys/' + data.key).remove();
+                        deviceRef.remove();
+                    }
+                });
+                
+                // العودة للصفحة الرئيسية بعد 3 ثواني
                 setTimeout(() => {
                     if (document.getElementById('pageLocked').classList.contains('active')) {
                         showPage('pageTerms');
@@ -596,6 +633,7 @@
                 }, 3000);
             }
         };
+        
         updateTimer();
         lockTimerInterval = setInterval(updateTimer, 1000);
     }
@@ -605,7 +643,9 @@
         showPage('pageTerms');
     });
 
-    // ------------------------- VERIFICATION -------------------------
+    // ============================================================
+    //                      VERIFICATION
+    // ============================================================
     btnVerify.addEventListener('click', function() {
         const userAns = parseInt(mathAnswer.value);
         if (isNaN(userAns)) {
@@ -629,14 +669,16 @@
         if (e.key === 'Enter') btnVerify.click();
     });
 
-    // ------------------------- GENERATE & STORE KEY -------------------------
+    // ============================================================
+    //                      GENERATE & STORE KEY
+    // ============================================================
     async function generateAndShowKey() {
-        // Double-check no active key exists
-        const deviceRef = db.ref('devices/' + deviceID);
+        // التحقق مرة أخرى من عدم وجود مفتاح نشط
+        const deviceRef = db.ref('devices/' + hwid);
         const snap = await deviceRef.once('value');
         const existing = snap.val();
+        
         if (existing && existing.key && existing.expiresAt && Date.now() < existing.expiresAt) {
-            // Still active — show lock
             showLockedPage(existing.expiresAt);
             return;
         }
@@ -645,7 +687,7 @@
             await deviceRef.remove();
         }
 
-        // Generate unique key
+        // إنشاء مفتاح فريد
         let newKey = '';
         let unique = false;
         while (!unique) {
@@ -661,8 +703,9 @@
         const now = Date.now();
         const expiresAt = now + 24 * 60 * 60 * 1000;
 
+        // حفظ البيانات مع HWID و IP
         const keyData = {
-            deviceID: deviceID,
+            hwid: hwid,
             ip: userIP || 'unknown',
             createdAt: now,
             expiresAt: expiresAt
@@ -670,12 +713,14 @@
         const deviceData = {
             key: newKey,
             createdAt: now,
-            expiresAt: expiresAt
+            expiresAt: expiresAt,
+            ip: userIP || 'unknown',
+            hwid: hwid
         };
 
         const updates = {};
         updates['keys/' + newKey] = keyData;
-        updates['devices/' + deviceID] = deviceData;
+        updates['devices/' + hwid] = deviceData;
         await db.ref().update(updates);
 
         generatedKey = newKey;
@@ -684,7 +729,9 @@
         copyMessage.classList.add('hidden');
     }
 
-    // ------------------------- COPY KEY -------------------------
+    // ============================================================
+    //                      COPY KEY
+    // ============================================================
     btnCopy.addEventListener('click', function() {
         if (!generatedKey) return;
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -717,7 +764,9 @@
         document.body.removeChild(textarea);
     }
 
-    // ------------------------- BACK HOME -------------------------
+    // ============================================================
+    //                      BACK HOME
+    // ============================================================
     btnBackHome.addEventListener('click', function() {
         if (lockTimerInterval) clearInterval(lockTimerInterval);
         showPage('pageTerms');
@@ -730,35 +779,43 @@
         verifyError.classList.add('hidden');
     });
 
-    // ------------------------- INITIAL CHECK ON LOAD -------------------------
+    // ============================================================
+    //                      INITIAL CHECK ON LOAD
+    // ============================================================
     async function checkDeviceOnLoad() {
-        const deviceRef = db.ref('devices/' + deviceID);
+        const deviceRef = db.ref('devices/' + hwid);
         const snap = await deviceRef.once('value');
         const data = snap.val();
+        
         if (data && data.key && data.expiresAt) {
             const now = Date.now();
             if (now < data.expiresAt) {
-                // Active key found — show locked page
+                // مفتاح نشط - نعرض المؤقت
                 showLockedPage(data.expiresAt);
                 return;
             } else {
-                // Expired — clean up
+                // منتهي - نمسحه
                 await db.ref('keys/' + data.key).remove();
                 await deviceRef.remove();
             }
         }
-        // No active key — show terms
+        // لا يوجد مفتاح نشط - نعرض صفحة الشروط
         showPage('pageTerms');
     }
 
-    // Pre-fetch IP
-    getIP().then(ip => userIP = ip);
-
-    // Disable copy of key display
+    // ============================================================
+    //                      PREVENT KEY COPY
+    // ============================================================
     keyDisplay.addEventListener('selectstart', (e) => e.preventDefault());
     keyDisplay.addEventListener('copy', (e) => e.preventDefault());
 
-    // Run initial check
+    // ============================================================
+    //                      RUN
+    // ============================================================
+    // جلب الIP عند التحميل
+    getIP().then(ip => userIP = ip);
+    
+    // التحقق من وجود مفتاح نشط
     checkDeviceOnLoad();
 </script>
 
